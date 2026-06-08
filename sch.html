@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>高次群論　相乗チャウ環 SCh(G) 比較ツール</title>
+<title>高次群論　SCh(G) 比較ツール</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;--border:#2e3350;--text:#e8eaf0;--text2:#8b91b0;--text3:#555c7a;--green:#4ade80;--green-bg:rgba(74,222,128,0.1);--green-border:rgba(74,222,128,0.3);--blue:#60a5fa;--blue-bg:rgba(96,165,250,0.1);--blue-border:rgba(96,165,250,0.3);--red:#f87171;--red-bg:rgba(248,113,113,0.1);--red-border:rgba(248,113,113,0.3);--yellow:#fbbf24;--yellow-bg:rgba(251,191,36,0.1);--yellow-border:rgba(251,191,36,0.3);--mono:'IBM Plex Mono',monospace;--sans:'Noto Sans JP',sans-serif}
@@ -35,22 +35,23 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
 .run-btn:hover{border-color:var(--blue-border);color:var(--blue)}
 .run-btn:disabled{opacity:.4;cursor:not-allowed}
 .result{display:none}.result.show{display:block}
-.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
-.compare-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem}
-.compare-title{font-size:13px;font-weight:500;margin-bottom:8px}
-.sg-row{font-size:11px;font-family:var(--mono);padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;color:var(--text2)}
-.sg-row:last-child{border-bottom:none}
 .verdict{border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:14px;font-weight:500;text-align:center}
 .verdict.diff{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green)}
 .verdict.same-noniso{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red)}
 .verdict.same-iso{background:var(--blue-bg);border:1px solid var(--blue-border);color:var(--blue)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
+.compare-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem}
+.compare-title{font-size:13px;font-weight:500;margin-bottom:8px}
+.sch-section{margin-bottom:1rem}
+.sch-title{font-size:12px;font-weight:500;color:var(--text3);margin-bottom:6px}
+.sg-row{font-size:11px;font-family:var(--mono);padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;color:var(--text2)}
+.sg-row:last-child{border-bottom:none}
 .mult-table{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--mono);margin-top:8px}
 .mult-table td,.mult-table th{border:1px solid var(--border);padding:3px 6px;text-align:center}
 .mult-table th{background:var(--bg3);color:var(--text2)}
-.sch-section{margin-bottom:1rem}
-.sch-title{font-size:12px;font-weight:500;color:var(--text3);margin-bottom:6px}
-.fingerprint{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-family:var(--mono);font-size:10px;color:var(--yellow);word-break:break-all;margin-top:8px;max-height:80px;overflow-y:auto}
-/* 全ペア検証 */
+.diff-box{background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:8px;padding:10px 14px;margin-bottom:1rem;font-size:12px;font-family:var(--mono);color:var(--yellow);line-height:1.8}
+.diff-title{font-size:12px;font-weight:500;color:var(--yellow);margin-bottom:6px}
+/* 全ペア */
 .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
 .stat-num{font-size:24px;font-weight:700;font-family:var(--mono)}
@@ -58,32 +59,41 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
 .stat-num.warn{color:var(--red)}
 .stat-num.blue{color:var(--blue)}
 .stat-label{font-size:11px;color:var(--text3);margin-top:4px}
-.pair-table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono);margin-bottom:1rem}
-.pair-table th{background:var(--bg3);color:var(--text2);padding:6px 10px;text-align:left;border:1px solid var(--border);font-size:11px}
-.pair-table td{padding:6px 10px;border:1px solid var(--border);color:var(--text2)}
-.pair-table tr.noniso-same td{background:var(--red-bg);color:var(--red)}
-.pair-table tr.iso td{background:var(--blue-bg);color:var(--blue);opacity:.5}
-.pair-table tr.diff td{color:var(--green)}
+.pair-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem}
+.pair-row{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
+.pair-row.warn{border-color:var(--red-border);background:var(--red-bg)}
+.pair-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px}
+.pair-names{font-size:13px;font-weight:500;font-family:var(--mono);color:var(--text)}
+.pair-badge{padding:2px 10px;border-radius:12px;font-size:11px;font-weight:500}
+.badge-ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.badge-warn{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.pair-detail{font-size:11px;font-family:var(--mono);color:var(--text2);line-height:1.8}
+.pair-detail .diff{color:var(--yellow)}
 .dl-btn{width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--sans);display:none;margin-top:10px;transition:all .15s}
 .dl-btn:hover{border-color:var(--green-border);color:var(--green)}
 .dl-btn.show{display:block}
 .divider{height:1px;background:var(--border);margin:1.5rem 0}
 footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:11px;color:var(--text3);line-height:1.8}
 footer a{color:var(--text2);text-decoration:none}
-footer a:hover{color:var(--blue)}
 </style>
 </head>
 <body>
-<nav style="background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 0"><div style="max-width:720px;margin:0 auto;padding:0 1.25rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:12px;color:var(--text3);margin-right:8px">高次群論 検証ツール</span><a href="index.html" style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--sans);text-decoration:none;color:var(--text2)" id="nav-ta10">Ta10 ベズー型定理</a><a href="ta9.html" style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--sans);text-decoration:none;color:var(--text2)" id="nav-ta9">Ta9 セクト・位数の法則</a><a href="sch.html" style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--sans);text-decoration:none;color:var(--text2)" id="nav-sch">SCh(G) 完全不変量の探索</a></div></nav>
+<nav>
+  <div class="nav-inner">
+    <span class="nav-label">高次群論 検証ツール</span>
+    <a href="index.html" class="nav-link" id="nav-ta10">Ta10 ベズー型定理</a>
+    <a href="ta9.html" class="nav-link" id="nav-ta9">Ta9 セクト・位数の法則</a>
+    <a href="sch.html" class="nav-link active" id="nav-sch">SCh(G) 完全不変量の探索</a>
+  </div>
+</nav>
 
 <div class="wrap">
   <h1>相乗チャウ環 SCh(G) 比較ツール</h1>
   <p class="sub">SCh(G₁) = SCh(G₂) かつ G₁ ≇ G₂ となるペアが存在すれば、SCh(G) が完全不変量でないことの反証になります。</p>
 
   <div class="info-box">
-    SCh(G) の構成：群Gの有限部分群 H ごとにシンボル X_H を割り当て、積のルール <code>X_H · X_K = |HK| · X_{H∩K}</code> で生成されるZ-代数に相乗位数公式を関係式として入れた環。ここでは SCh(G) の指紋として「部分群の位数の分布」と「積関係テーブル（|HK|, |H∩K|）の多重集合」を比較します。<br><br>
-    <strong style="color:var(--yellow)">⚠ 精度について：</strong>　このツールの指紋は <strong>簡易的なフィルター</strong> です。厳密な SCh(G) の構造には「どの部分群とどの部分群が具体的にどう交わるか」という代数的な積構造も含まれますが、ここでは位数の多重集合のみを比較しています。<br>
-    「指紋が違う → 確実に非同型（100%信頼）」ですが、「指紋が同じ → 同型とは限らない（さらに詳細な検証が必要）」という点に注意してください。
+    SCh(G) の構成：群Gの有限部分群 H ごとにシンボル X_H を割り当て、積のルール <code>X_H · X_K = |HK| · X_{H∩K}</code> で生成されるZ-代数に相乗位数公式を関係式として入れた環。ここでは「部分群の位数の分布」と「積関係テーブル（|HK|, |H∩K|）の多重集合」を比較します。<br><br>
+    <strong style="color:var(--yellow)">⚠ 精度について：</strong>　「指紋が違う → 確実に非同型（100%信頼）」ですが、「指紋が同じ → 同型とは限らない（さらに詳細な検証が必要）」です。このツールは簡易的なフィルターであり、位数の多重集合のみを比較しています。
   </div>
 
   <div class="tabs">
@@ -91,60 +101,38 @@ footer a:hover{color:var(--blue)}
     <button class="tab" onclick="switchTab('auto')">全ペア自動比較</button>
   </div>
 
-  <!-- 手動比較 -->
+  <!-- 手動 -->
   <div class="pane active" id="pane-manual">
     <div class="sec">比較する群を選ぶ</div>
     <div class="group-grid">
-      <div class="group-panel">
-        <div class="group-panel-title">群 G₁</div>
-        <div class="gbtn-list" id="g1-list"></div>
-      </div>
-      <div class="group-panel">
-        <div class="group-panel-title">群 G₂</div>
-        <div class="gbtn-list" id="g2-list"></div>
-      </div>
+      <div class="group-panel"><div class="group-panel-title">群 G₁</div><div class="gbtn-list" id="g1-list"></div></div>
+      <div class="group-panel"><div class="group-panel-title">群 G₂</div><div class="gbtn-list" id="g2-list"></div></div>
     </div>
     <button class="run-btn" onclick="computeManual()">SCh(G) を計算して比較 →</button>
     <div class="result" id="manual-result">
       <div class="verdict" id="verdict"></div>
+      <div class="diff-box" id="diff-detail" style="display:none">
+        <div class="diff-title">区別できた理由（差分の詳細）</div>
+        <div id="diff-content"></div>
+      </div>
       <div class="compare-grid">
         <div class="compare-card">
           <div class="compare-title" id="g1-title">G₁</div>
-          <div class="sch-section">
-            <div class="sch-title">部分群の位数の分布</div>
-            <div id="g1-orders"></div>
-          </div>
-          <div class="sch-section" style="margin-top:12px">
-            <div class="sch-title">積関係テーブル（上位20件）</div>
-            <div id="g1-table"></div>
-          </div>
-          <div class="sch-section" style="margin-top:12px">
-            <div class="sch-title">SCh(G) 指紋（ハッシュ）</div>
-            <div class="fingerprint" id="g1-fp"></div>
-          </div>
+          <div class="sch-section"><div class="sch-title">部分群の位数の分布</div><div id="g1-orders"></div></div>
+          <div class="sch-section" style="margin-top:12px"><div class="sch-title">積関係テーブル（上位20件）</div><div id="g1-table"></div></div>
         </div>
         <div class="compare-card">
           <div class="compare-title" id="g2-title">G₂</div>
-          <div class="sch-section">
-            <div class="sch-title">部分群の位数の分布</div>
-            <div id="g2-orders"></div>
-          </div>
-          <div class="sch-section" style="margin-top:12px">
-            <div class="sch-title">積関係テーブル（上位20件）</div>
-            <div id="g2-table"></div>
-          </div>
-          <div class="sch-section" style="margin-top:12px">
-            <div class="sch-title">SCh(G) 指紋（ハッシュ）</div>
-            <div class="fingerprint" id="g2-fp"></div>
-          </div>
+          <div class="sch-section"><div class="sch-title">部分群の位数の分布</div><div id="g2-orders"></div></div>
+          <div class="sch-section" style="margin-top:12px"><div class="sch-title">積関係テーブル（上位20件）</div><div id="g2-table"></div></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 全ペア自動比較 -->
+  <!-- 全ペア -->
   <div class="pane" id="pane-auto">
-    <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;line-height:1.7">登録されている全群の全ペアを比較します。SCh(G₁) = SCh(G₂) かつ G₁ ≇ G₂ のペアが反証候補です。</p>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;line-height:1.7">全群の全ペアを比較し、なぜ区別できたか（またはできなかったか）の詳細を表示します。</p>
     <button class="run-btn" id="auto-btn" onclick="computeAll()">全ペア自動比較を開始 →</button>
     <div id="auto-result" style="display:none">
       <div class="stat-grid">
@@ -152,9 +140,7 @@ footer a:hover{color:var(--blue)}
         <div class="stat-card"><div class="stat-num ok" id="s-dist">0</div><div class="stat-label">SCh で区別できた</div></div>
         <div class="stat-card"><div class="stat-num warn" id="s-same">0</div><div class="stat-label">反証候補（要注意）</div></div>
       </div>
-      <table class="pair-table" id="pair-table">
-        <tr><th>G₁</th><th>G₂</th><th>同型?</th><th>SCh一致?</th><th>判定</th></tr>
-      </table>
+      <div class="pair-list" id="pair-list"></div>
       <button class="dl-btn" id="dl-btn" onclick="downloadCSV()">結果を CSV でダウンロード ↓</button>
     </div>
   </div>
@@ -162,11 +148,8 @@ footer a:hover{color:var(--blue)}
   <div class="divider"></div>
   <footer>
     <strong>参照論文</strong><br>
-    Takamura, S. "Intersection theory for groups and their Chow rings" (2025), Preprint [Ta13]<br>
-    <br>
-    <strong>注意</strong><br>
-    SCh(G) が完全不変量かどうかは未解決問題です。このツールは計算機による探索であり、証明ではありません。<br>
-    <br>
+    Takamura, S. "Intersection theory for groups and their Chow rings" (2025), Preprint [Ta13]<br><br>
+    <strong>注意</strong>　SCh(G) が完全不変量かどうかは未解決問題です。このツールは計算機による探索であり、証明ではありません。<br><br>
     <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a>
   </footer>
 </div>
@@ -217,6 +200,41 @@ function computeSCh(g){
   return{sgs,orders,relations,fp:JSON.stringify({orders,relations})};
 }
 
+function getDiff(s1,s2){
+  const reasons=[];
+  // 部分群の個数
+  if(s1.sgs.length!==s2.sgs.length)
+    reasons.push(`部分群の総数が異なる: G₁=${s1.sgs.length}個 vs G₂=${s2.sgs.length}個`);
+  // 位数の分布
+  const c1={},c2={};
+  s1.orders.forEach(o=>c1[o]=(c1[o]||0)+1);
+  s2.orders.forEach(o=>c2[o]=(c2[o]||0)+1);
+  const allOrders=[...new Set([...Object.keys(c1),...Object.keys(c2)])].sort((a,b)=>+a-+b);
+  allOrders.forEach(o=>{
+    const n1=c1[o]||0,n2=c2[o]||0;
+    if(n1!==n2)reasons.push(`位数${o}の部分群の個数: G₁=${n1}個 vs G₂=${n2}個`);
+  });
+  // 積関係の分布
+  if(s1.fp===s2.fp)return reasons;
+  const r1=JSON.stringify(s1.relations),r2=JSON.stringify(s2.relations);
+  if(r1!==r2){
+    // |HK|の値の分布を比較
+    const hk1=s1.relations.map(r=>r[2]).sort((a,b)=>a-b);
+    const hk2=s2.relations.map(r=>r[2]).sort((a,b)=>a-b);
+    const hk1str=JSON.stringify(hk1),hk2str=JSON.stringify(hk2);
+    if(hk1str!==hk2str)reasons.push(`積 |HK| の値の分布が異なる`);
+    // |H∩K|の分布
+    const int1=s1.relations.map(r=>r[3]).sort((a,b)=>a-b);
+    const int2=s2.relations.map(r=>r[3]).sort((a,b)=>a-b);
+    if(JSON.stringify(int1)!==JSON.stringify(int2))reasons.push(`交わり |H∩K| の値の分布が異なる`);
+    // 積関係ペアの分布
+    const pair1=s1.relations.map(r=>`${r[0]},${r[1]},${r[2]},${r[3]}`).sort();
+    const pair2=s2.relations.map(r=>`${r[0]},${r[1]},${r[2]},${r[3]}`).sort();
+    if(JSON.stringify(pair1)!==JSON.stringify(pair2))reasons.push(`(|H|,|K|,|HK|,|H∩K|) の組み合わせパターンが異なる`);
+  }
+  return reasons;
+}
+
 function switchTab(t){
   document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",i===(t==="manual"?0:1)));
   document.getElementById("pane-manual").classList.toggle("active",t==="manual");
@@ -261,12 +279,17 @@ function computeManual(){
   renderOrders(s2.orders,document.getElementById("g2-orders"));
   renderTable(s1.relations,document.getElementById("g1-table"));
   renderTable(s2.relations,document.getElementById("g2-table"));
-  document.getElementById("g1-fp").textContent=s1.fp.slice(0,300);
-  document.getElementById("g2-fp").textContent=s2.fp.slice(0,300);
   const v=document.getElementById("verdict");
   if(same&&isNonIso){v.className="verdict same-noniso";v.textContent="⚠ SCh(G₁) = SCh(G₂) かつ G₁ ≇ G₂ — 反証候補";}
   else if(!isNonIso){v.className="verdict same-iso";v.textContent="SCh(G₁) = SCh(G₂)（同じ群なので当然）";}
   else{v.className="verdict diff";v.textContent="✓ SCh(G₁) ≠ SCh(G₂) — この2群は SCh(G) で区別できた";}
+  const dd=document.getElementById("diff-detail");
+  const dc=document.getElementById("diff-content");
+  if(!same){
+    const reasons=getDiff(s1,s2);
+    dd.style.display="block";
+    dc.innerHTML=reasons.map(r=>`• ${r}`).join("<br>");
+  } else {dd.style.display="none";}
   document.getElementById("manual-result").className="result show";
 }
 
@@ -276,11 +299,9 @@ function computeAll(){
   document.getElementById("auto-result").style.display="block";
   document.getElementById("dl-btn").className="dl-btn";
   const keys=Object.keys(GROUPS);
-  const schCache={};
-  keys.forEach(k=>{schCache[k]=computeSCh(GROUPS[k]);});
-  const tbody=document.getElementById("pair-table");
-  while(tbody.rows.length>1)tbody.deleteRow(1);
-  csvData=[["G₁","G₂","同型?","SCh一致?","判定"]];
+  const schCache={};keys.forEach(k=>{schCache[k]=computeSCh(GROUPS[k]);});
+  const pairList=document.getElementById("pair-list");pairList.innerHTML="";
+  csvData=[["G₁","G₂","同型?","SCh一致?","判定","区別できた理由"]];
   let total=0,dist=0,same=0;
   for(let i=0;i<keys.length;i++)for(let j=i+1;j<keys.length;j++){
     const k1=keys[i],k2=keys[j];
@@ -289,14 +310,25 @@ function computeAll(){
     const isIso=g1.iso===g2.iso;
     const schSame=s1.fp===s2.fp;
     total++;
-    let cls,label;
-    if(schSame&&!isIso){same++;cls="noniso-same";label="⚠ 反証候補";}
-    else if(isIso){cls="iso";label="同型（参考）";}
-    else{dist++;cls="diff";label="✓ 区別できた";}
-    const tr=tbody.insertRow();
-    tr.className=cls;
-    [g1.name,g2.name,isIso?"Yes（同型）":"No（非同型）",schSame?"一致":"不一致",label].forEach(t=>{const td=tr.insertCell();td.textContent=t;});
-    csvData.push([g1.name,g2.name,isIso?"同型":"非同型",schSame?"一致":"不一致",label]);
+    let label,cls;
+    if(schSame&&!isIso){same++;cls="warn";label="⚠ 反証候補";}
+    else if(isIso){cls="";label="同型（参考）";}
+    else{dist++;cls="";label="✓ 区別できた";}
+    const reasons=schSame?[]:getDiff(s1,s2);
+    const reasonStr=reasons.join(" / ")||"—";
+    const row=document.createElement("div");
+    row.className=`pair-row ${cls}`;
+    row.innerHTML=`
+      <div class="pair-header">
+        <span class="pair-names">${g1.name} vs ${g2.name}</span>
+        <span class="pair-badge ${cls==='warn'?'badge-warn':'badge-ok'}">${label}</span>
+      </div>
+      <div class="pair-detail">
+        同型: ${isIso?"Yes":"No"}　SCh一致: ${schSame?"Yes（一致）":"No（不一致）"}
+        ${!schSame?`<br><span class="diff">区別できた理由: ${reasons.map(r=>`• ${r}`).join("　")}</span>`:""}
+      </div>`;
+    pairList.appendChild(row);
+    csvData.push([g1.name,g2.name,isIso?"同型":"非同型",schSame?"一致":"不一致",label,reasonStr]);
   }
   document.getElementById("s-total").textContent=total;
   document.getElementById("s-dist").textContent=dist;
@@ -315,6 +347,5 @@ function downloadCSV(){
 
 renderGroups();
 </script>
-<script>document.getElementById("nav-sch").style.cssText+="background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue)";</script>
 </body>
 </html>
