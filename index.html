@@ -1,0 +1,365 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.app{padding:1rem 0;max-width:680px;font-family:var(--font-sans)}
+h2{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem}
+.tabs{display:flex;gap:0;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden;margin-bottom:1.25rem;width:fit-content}
+.tab{padding:7px 18px;font-size:13px;cursor:pointer;background:transparent;border:none;color:var(--color-text-secondary);transition:all .15s}
+.tab.active{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500}
+.pane{display:none}.pane.active{display:block}
+.sec{font-size:12px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.group-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.25rem}
+.gbtn{padding:6px 14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px;cursor:pointer;transition:all .15s}
+.gbtn.active{background:var(--color-background-info);border-color:var(--color-border-info);color:var(--color-text-info)}
+.panel{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:12px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.panel-label{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.panel-hint{font-size:11px;color:var(--color-text-tertiary)}
+.sg-list{display:flex;flex-direction:column;gap:6px}
+.sg-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;transition:all .15s;user-select:none}
+.sg-row:hover:not(.disabled){background:var(--color-background-secondary)}
+.sg-row.selH{background:var(--color-background-success);border-color:var(--color-border-success)}
+.sg-row.selK{background:var(--color-background-warning);border-color:var(--color-border-warning)}
+.sg-row.disabled{opacity:.35;cursor:not-allowed}
+.sg-check{width:16px;height:16px;border:0.5px solid var(--color-border-secondary);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px}
+.sg-row.selH .sg-check{background:var(--color-text-success);border-color:var(--color-text-success);color:#fff}
+.sg-row.selK .sg-check{background:var(--color-text-warning);border-color:var(--color-text-warning);color:#fff}
+.sg-elems{font-size:12px;font-family:var(--font-mono);color:var(--color-text-secondary);flex:1}
+.sg-order{font-size:11px;color:var(--color-text-tertiary);min-width:40px;text-align:right}
+.a-area{display:flex;flex-wrap:wrap;gap:6px}
+.atag{padding:4px 12px;border-radius:20px;font-size:12px;font-family:var(--font-mono);cursor:pointer;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all .15s;user-select:none}
+.atag.on{background:var(--color-background-danger);border-color:var(--color-border-danger);color:var(--color-text-danger)}
+.run-btn{width:100%;padding:11px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:14px;cursor:pointer;margin-bottom:1.25rem;transition:all .15s}
+.run-btn:hover{background:var(--color-background-tertiary)}
+.formula-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem;font-size:14px}
+.lhs{color:var(--color-text-info);font-weight:500}
+.rhs{color:var(--color-text-success);font-weight:500}
+.ok{color:var(--color-text-success);font-weight:500;margin-left:8px}
+.coset-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 14px;margin-bottom:8px}
+.coset-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px}
+.coset-name{font-size:13px;font-weight:500;font-family:var(--font-mono);color:var(--color-text-primary)}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{padding:2px 8px;border-radius:12px;font-size:11px;font-weight:500}
+.bw{background:var(--color-background-danger);color:var(--color-text-danger)}
+.bm{background:var(--color-background-warning);color:var(--color-text-warning)}
+.bi{background:var(--color-background-success);color:var(--color-text-success)}
+.elems-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px}
+.elem-chip{padding:2px 8px;background:var(--color-background-secondary);border-radius:12px;font-size:11px;font-family:var(--font-mono);color:var(--color-text-secondary)}
+.contrib-note{font-size:11px;color:var(--color-text-tertiary)}
+.syn-toggle{font-size:12px;color:var(--color-text-secondary);cursor:pointer;padding:4px 0;background:none;border:none;margin-bottom:8px}
+.syn-table{font-size:12px;font-family:var(--font-mono);border-collapse:collapse;width:100%}
+.syn-table td{padding:3px 8px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.syn-table td:first-child{color:var(--color-text-secondary)}
+.err{color:var(--color-text-danger);font-size:13px;padding:8px 12px;background:var(--color-background-danger);border-radius:var(--border-radius-md);margin-bottom:1rem}
+.need-sel{font-size:13px;color:var(--color-text-tertiary);padding:4px 0}
+.result{display:none}.result.show{display:block}
+/* 全数検証タブ */
+.verify-group-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.stat-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;text-align:center}
+.stat-num{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.stat-label{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.stat-num.ok{color:var(--color-text-success)}
+.stat-num.fail{color:var(--color-text-danger)}
+.progress-wrap{background:var(--color-background-secondary);border-radius:4px;height:6px;margin-bottom:1rem;overflow:hidden}
+.progress-bar{height:100%;background:var(--color-text-info);border-radius:4px;transition:width .1s;width:0%}
+.log-area{font-size:11px;font-family:var(--font-mono);max-height:260px;overflow-y:auto;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px}
+.log-row{padding:3px 0;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;gap:8px;align-items:center}
+.log-row:last-child{border-bottom:none}
+.log-ok{color:var(--color-text-success);font-size:10px;flex-shrink:0}
+.log-fail{color:var(--color-text-danger);font-size:10px;flex-shrink:0}
+.log-desc{color:var(--color-text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log-eq{color:var(--color-text-tertiary);flex-shrink:0}
+.dl-btn{margin-top:10px;width:100%;padding:9px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px;cursor:pointer;display:none}
+.dl-btn.show{display:block}
+.vrun-btn{width:100%;padding:11px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:14px;cursor:pointer;margin-bottom:1rem;transition:all .15s}
+.vrun-btn:hover{background:var(--color-background-tertiary)}
+</style>
+
+<div class="app">
+<h2>高次群論　シナジー計算機</h2>
+<p class="sub">手動検証と全数自動検証の両方に対応しています。</p>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('manual')">手動検証</button>
+  <button class="tab" onclick="switchTab('auto')">全数自動検証</button>
+</div>
+
+<!-- 手動検証タブ -->
+<div class="pane active" id="pane-manual">
+  <div class="sec">群を選ぶ</div>
+  <div class="group-row" id="group-row"></div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-label">部分群 H <span style="font-size:12px;font-weight:400;color:var(--color-text-tertiary)">— 左から挟む</span></span>
+      <span class="panel-hint">クリックで選択</span>
+    </div>
+    <div class="sg-list" id="H-list"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-label">部分群 K <span style="font-size:12px;font-weight:400;color:var(--color-text-tertiary)">— 右から挟む</span></span>
+      <span class="panel-hint">H と同じ部分群は選択不可</span>
+    </div>
+    <div class="sg-list" id="K-list"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-label">集合 A <span style="font-size:12px;font-weight:400;color:var(--color-text-tertiary)">— 任意の部分集合</span></span>
+      <span class="panel-hint">複数選択可</span>
+    </div>
+    <div class="a-area" id="A-area"></div>
+  </div>
+
+  <button class="run-btn" onclick="computeManual()">シナジー π を計算してベズー型定理を検証 →</button>
+  <div class="result" id="manual-result"></div>
+</div>
+
+<!-- 全数検証タブ -->
+<div class="pane" id="pane-auto">
+  <div class="sec">検証する群を選ぶ</div>
+  <div class="verify-group-row" id="vgroup-row"></div>
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem">選んだ群の全部分群ペア (H,K) × 全非空部分集合 A の組み合わせを網羅的に検証します。</p>
+  <button class="vrun-btn" id="vrun-btn" onclick="runAuto()">全数検証を開始 →</button>
+  <div id="auto-result" style="display:none">
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num" id="s-total">0</div><div class="stat-label">総ケース数</div></div>
+      <div class="stat-card"><div class="stat-num ok" id="s-ok">0</div><div class="stat-label">成立</div></div>
+      <div class="stat-card"><div class="stat-num fail" id="s-fail">0</div><div class="stat-label">不成立（反証候補）</div></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="prog-bar"></div></div>
+    <div class="log-area" id="log-area"></div>
+    <button class="dl-btn" id="dl-btn" onclick="downloadCSV()">結果を CSV でダウンロード ↓</button>
+  </div>
+</div>
+</div>
+
+<script>
+const GROUPS={
+  S3:{name:"S₃（6元）",elems:["e","r","r²","f","fr","fr²"],
+    mul:(a,b)=>({"e":{"e":"e","r":"r","r²":"r²","f":"f","fr":"fr","fr²":"fr²"},"r":{"e":"r","r":"r²","r²":"e","f":"fr²","fr":"f","fr²":"fr"},"r²":{"e":"r²","r":"e","r²":"r","f":"fr","fr":"fr²","fr²":"f"},"f":{"e":"f","r":"fr","r²":"fr²","f":"e","fr":"r","fr²":"r²"},"fr":{"e":"fr","r":"fr²","r²":"f","f":"r²","fr":"e","fr²":"r"},"fr²":{"e":"fr²","r":"f","r²":"fr","f":"r","fr":"r²","fr²":"e"}}[a][b])},
+  D4:{name:"D₄（8元）",elems:["e","r","r²","r³","s","sr","sr²","sr³"],
+    mul:(a,b)=>{const idx=["e","r","r²","r³","s","sr","sr²","sr³"],T=[[0,1,2,3,4,5,6,7],[1,2,3,0,7,4,5,6],[2,3,0,1,6,7,4,5],[3,0,1,2,5,6,7,4],[4,5,6,7,0,1,2,3],[5,6,7,4,3,0,1,2],[6,7,4,5,2,3,0,1],[7,4,5,6,1,2,3,0]];return idx[T[idx.indexOf(a)][idx.indexOf(b)]]}},
+  Q8:{name:"Q₈（8元）",elems:["1","-1","i","-i","j","-j","k","-k"],
+    mul:(a,b)=>{const idx=["1","-1","i","-i","j","-j","k","-k"],T=[[0,1,2,3,4,5,6,7],[1,0,3,2,5,4,7,6],[2,3,1,0,6,7,5,4],[3,2,0,1,7,6,4,5],[4,5,7,6,1,0,2,3],[5,4,6,7,0,1,3,2],[6,7,4,5,3,2,1,0],[7,6,5,4,2,3,0,1]];return idx[T[idx.indexOf(a)][idx.indexOf(b)]]}},
+  Z6:{name:"Z₆（6元、可換）",elems:["0","1","2","3","4","5"],
+    mul:(a,b)=>String((+a+ +b)%6)}
+};
+
+let G=GROUPS.S3,selH=null,selK=null,selA=new Set(),showSyn=false;
+let vG=GROUPS.S3,csvData=[],autoRunning=false;
+
+function setEq(a,b){return a.length===b.length&&a.every(x=>b.includes(x))}
+
+function allSubgroups(g){
+  const n=g.elems.length,result=[];
+  for(let mask=1;mask<(1<<n);mask++){
+    const S=g.elems.filter((_,i)=>mask>>i&1);
+    if(!S.includes(g.elems[0]))continue;
+    let ok=true;
+    outer:for(let a of S)for(let b of S)if(!S.includes(g.mul(a,b))){ok=false;break outer;}
+    if(ok)result.push(S);
+  }
+  return result.sort((a,b)=>a.length-b.length);
+}
+
+function bezout(g,H,K,A){
+  const assigned=new Set(),cosets=[];
+  const HAK=new Set();
+  for(let h of H)for(let a of A)for(let k of K)HAK.add(g.mul(g.mul(h,a),k));
+  for(let x of HAK){
+    if(assigned.has(x))continue;
+    const coset=new Set();
+    for(let h of H)for(let k of K)coset.add(g.mul(g.mul(h,x),k));
+    coset.forEach(e=>assigned.add(e));
+    let rep=null;
+    for(let a of A){const t=new Set();for(let h of H)for(let k of K)t.add(g.mul(g.mul(h,a),k));if([...coset].every(e=>t.has(e))&&t.size===coset.size){rep=a;break;}}
+    let w=0;
+    for(let a of A){const t=new Set();for(let h of H)for(let k of K)t.add(g.mul(g.mul(h,a),k));if([...coset].every(e=>t.has(e))&&t.size===coset.size)w++;}
+    let aInv=g.elems[0];
+    for(let gg of g.elems)if(g.mul(rep,gg)===g.elems[0]){aInv=gg;break;}
+    const Ka=new Set();for(let k of K)Ka.add(g.mul(g.mul(rep,k),aInv));
+    const HintKa=H.filter(h=>Ka.has(h));
+    const contrib=w*H.length*K.length;
+    const mVal=HintKa.length>0?contrib/HintKa.length:0;
+    cosets.push({rep,elems:[...coset],w,HintKa,mVal,contrib});
+  }
+  const LHS=H.length*A.length*K.length;
+  const RHS=cosets.reduce((s,c)=>s+c.contrib,0);
+  return{LHS,RHS,ok:LHS===RHS,cosets};
+}
+
+function switchTab(t){
+  document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",i===(t==="manual"?0:1)));
+  document.getElementById("pane-manual").classList.toggle("active",t==="manual");
+  document.getElementById("pane-auto").classList.toggle("active",t==="auto");
+}
+
+function renderGroups(){
+  const r=document.getElementById("group-row");r.innerHTML="";
+  Object.entries(GROUPS).forEach(([k,v])=>{
+    const b=document.createElement("button");
+    b.className="gbtn"+(G===v?" active":"");
+    b.textContent=v.name;
+    b.onclick=()=>{G=v;selH=null;selK=null;selA=new Set();showSyn=false;renderAll();document.getElementById("manual-result").className="result";};
+    r.appendChild(b);
+  });
+  const vr=document.getElementById("vgroup-row");vr.innerHTML="";
+  Object.entries(GROUPS).forEach(([k,v])=>{
+    const b=document.createElement("button");
+    b.className="gbtn"+(vG===v?" active":"");
+    b.textContent=v.name;
+    b.onclick=()=>{vG=v;document.getElementById("auto-result").style.display="none";document.getElementById("dl-btn").className="dl-btn";b.parentNode.querySelectorAll(".gbtn").forEach(x=>x.classList.remove("active"));b.classList.add("active");vG=v;};
+    vr.appendChild(b);
+  });
+}
+
+function renderH(){
+  const sgs=allSubgroups(G),list=document.getElementById("H-list");list.innerHTML="";
+  sgs.forEach(sg=>{
+    const isSel=selH&&setEq(sg,selH);
+    const row=document.createElement("div");
+    row.className="sg-row"+(isSel?" selH":"");
+    row.innerHTML=`<div class="sg-check">${isSel?"✓":""}</div><div class="sg-elems">{${sg.join(", ")}}</div><div class="sg-order">|H|=${sg.length}</div>`;
+    row.onclick=()=>{selH=isSel?null:sg;if(selK&&selH&&setEq(selK,selH))selK=null;selA=new Set();showSyn=false;renderAll();document.getElementById("manual-result").className="result";};
+    list.appendChild(row);
+  });
+}
+
+function renderK(){
+  const sgs=allSubgroups(G),list=document.getElementById("K-list");list.innerHTML="";
+  sgs.forEach(sg=>{
+    const isSel=selK&&setEq(sg,selK);
+    const disabled=selH&&setEq(sg,selH);
+    const row=document.createElement("div");
+    row.className="sg-row"+(isSel?" selK":"")+(disabled?" disabled":"");
+    row.innerHTML=`<div class="sg-check">${isSel?"✓":""}</div><div class="sg-elems">{${sg.join(", ")}}</div><div class="sg-order">|K|=${sg.length}</div>`;
+    if(!disabled)row.onclick=()=>{selK=isSel?null:sg;selA=new Set();showSyn=false;renderAll();document.getElementById("manual-result").className="result";};
+    list.appendChild(row);
+  });
+}
+
+function renderA(){
+  const area=document.getElementById("A-area");area.innerHTML="";
+  if(!selH||!selK){area.innerHTML=`<span class="need-sel">H と K を選ぶと A が選択できます</span>`;return;}
+  G.elems.forEach(e=>{
+    const t=document.createElement("span");
+    t.className="atag"+(selA.has(e)?" on":"");
+    t.textContent=e;
+    t.onclick=()=>{selA.has(e)?selA.delete(e):selA.add(e);t.className="atag"+(selA.has(e)?" on":"");};
+    area.appendChild(t);
+  });
+}
+
+function renderAll(){renderGroups();renderH();renderK();renderA();}
+
+function computeManual(){
+  const res=document.getElementById("manual-result");
+  if(!selH||!selK){res.className="result show";res.innerHTML=`<div class="err">H と K を両方選んでください。</div>`;return;}
+  if(selA.size===0){res.className="result show";res.innerHTML=`<div class="err">A の要素を1つ以上選んでください。</div>`;return;}
+  const {LHS,RHS,ok,cosets}=bezout(G,selH,selK,[...selA]);
+  const triples=[];
+  for(let h of selH)for(let a of selA)for(let k of selK)triples.push({h,a,k,r:G.mul(G.mul(h,a),k)});
+  let html=`
+  <div class="sec">ベズー型定理の検証</div>
+  <div class="formula-box">
+    <span class="lhs">|H|×|A|×|K| = ${selH.length}×${selA.size}×${selK.length} = ${LHS}</span>
+    <span style="color:var(--color-text-primary)"> = Σ m<sup>(i)</sup>|H∩K<sup>α</sup>| = </span>
+    <span class="rhs">${RHS}</span>
+    <span class="ok">${ok?"✓ 成立":"✗ 不成立"}</span>
+  </div>
+  <div class="sec">両側コセット分解　HAK = ⊔ Hα<sup>(i)</sup>K</div>`;
+  cosets.forEach((c,i)=>{
+    html+=`<div class="coset-card">
+      <div class="coset-top">
+        <span class="coset-name">Hα<sup>(${i+1})</sup>K　代表元 α = ${c.rep}</span>
+        <div class="badges">
+          <span class="badge bw">サテライト指数 w = ${c.w}</span>
+          <span class="badge bm">重複度 m = ${Number.isInteger(c.mVal)?c.mVal:c.mVal.toFixed(1)}</span>
+          <span class="badge bi">|H∩Kᵅ| = ${c.HintKa.length}</span>
+        </div>
+      </div>
+      <div class="elems-row">${c.elems.map(e=>`<span class="elem-chip">${e}</span>`).join("")}</div>
+      <div class="contrib-note">H∩Kᵅ = {${c.HintKa.join(", ")}}　　寄与 m×|H∩Kᵅ| = ${c.contrib}</div>
+    </div>`;
+  });
+  html+=`<button class="syn-toggle" onclick="toggleSyn()">${showSyn?"シナジー写像を隠す ▲":"シナジー写像 π(h,a,k)=hak を全表示 ▼"}</button>
+  <div id="syn-detail" style="display:${showSyn?"block":"none"}">
+    <table class="syn-table">
+      <tr><td style="color:var(--color-text-tertiary)">入力 (h, a, k)</td><td></td><td style="color:var(--color-text-tertiary)">出力 hak</td></tr>
+      ${triples.map(t=>`<tr><td>(${t.h}, ${t.a}, ${t.k})</td><td style="color:var(--color-text-tertiary)">→</td><td>${t.r}</td></tr>`).join("")}
+    </table>
+  </div>`;
+  res.className="result show";res.innerHTML=html;
+}
+
+function toggleSyn(){
+  showSyn=!showSyn;
+  const d=document.getElementById("syn-detail"),b=document.querySelector(".syn-toggle");
+  if(d)d.style.display=showSyn?"block":"none";
+  if(b)b.textContent=showSyn?"シナジー写像を隠す ▲":"シナジー写像 π(h,a,k)=hak を全表示 ▼";
+}
+
+async function runAuto(){
+  if(autoRunning)return;
+  autoRunning=true;
+  const btn=document.getElementById("vrun-btn");
+  btn.textContent="検証中...";btn.disabled=true;
+  document.getElementById("auto-result").style.display="block";
+  document.getElementById("dl-btn").className="dl-btn";
+  const log=document.getElementById("log-area"),bar=document.getElementById("prog-bar");
+  log.innerHTML="";csvData=[["群","H","K","A","LHS","RHS","成立"]];
+  let total=0,okCount=0,failCount=0;
+  const sgs=allSubgroups(vG);
+  // 全部分群ペア × 全非空部分集合A
+  const tasks=[];
+  for(let hi=0;hi<sgs.length;hi++)for(let ki=0;ki<sgs.length;ki++){
+    const H=sgs[hi],K=sgs[ki];
+    const n=vG.elems.length;
+    for(let mask=1;mask<(1<<n);mask++){
+      const A=vG.elems.filter((_,i)=>mask>>i&1);
+      tasks.push({H,K,A});
+    }
+  }
+  const T=tasks.length;
+  document.getElementById("s-total").textContent=T;
+
+  for(let i=0;i<T;i++){
+    const {H,K,A}=tasks[i];
+    const {LHS,RHS,ok}=bezout(vG,H,K,A);
+    total++;ok?okCount++:failCount++;
+    csvData.push([vG.name,`{${H.join(",")}}`,`{${K.join(",")}}`,`{${A.join(",")}}`,LHS,RHS,ok?"成立":"不成立"]);
+    document.getElementById("s-ok").textContent=okCount;
+    document.getElementById("s-fail").textContent=failCount;
+    bar.style.width=Math.round((i+1)/T*100)+"%";
+    if(i%50===0||!ok){
+      const row=document.createElement("div");
+      row.className="log-row";
+      row.innerHTML=`<span class="${ok?"log-ok":"log-fail"}">${ok?"✓":"✗"}</span><span class="log-desc">H={${H.join(",")}} K={${K.join(",")}} A={${A.join(",")}}</span><span class="log-eq">${LHS}=${RHS}</span>`;
+      log.appendChild(row);log.scrollTop=log.scrollHeight;
+    }
+    if(i%200===0)await new Promise(r=>setTimeout(r,0));
+  }
+  const row=document.createElement("div");
+  row.className="log-row";
+  row.innerHTML=`<span class="log-ok">完了</span><span class="log-desc">全 ${T} ケース検証済み　不成立: ${failCount} 件</span>`;
+  log.appendChild(row);log.scrollTop=log.scrollHeight;
+  document.getElementById("dl-btn").className="dl-btn show";
+  btn.textContent="全数検証を開始 →";btn.disabled=false;autoRunning=false;
+}
+
+function downloadCSV(){
+  const bom="\uFEFF";
+  const csv=bom+csvData.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download=`bezout_verification_${vG.name.replace(/[^A-Za-z0-9]/g,"_")}.csv`;
+  a.click();
+}
+
+renderAll();
+</script>
