@@ -56,6 +56,7 @@ footer a:hover{color:var(--blue)}
 </style>
 </head>
 <body>
+<nav style="background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 0"><div style="max-width:720px;margin:0 auto;padding:0 1.25rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:12px;color:var(--text3);margin-right:8px">高次群論 検証ツール</span><a href="index.html" style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--sans);text-decoration:none;color:var(--text2)" id="nav-ta10">Ta10 ベズー型定理</a><a href="ta9.html" style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--sans);text-decoration:none;color:var(--text2)" id="nav-ta9">Ta9 セクト・位数の法則</a><a href="sch.html" style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--sans);text-decoration:none;color:var(--text2)" id="nav-sch">SCh(G) 完全不変量の探索</a></div></nav>
 <div class="wrap">
   <header>
     <h1>高次群論　Ta9 検証ツール</h1>
@@ -303,5 +304,6 @@ function downloadCSV(){
 
 renderGroups();
 </script>
+<script>document.getElementById("nav-ta9").style.cssText+="background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue)";</script>
 </body>
 </html>
