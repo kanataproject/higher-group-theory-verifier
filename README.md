@@ -12,7 +12,7 @@
 | Ta10 ベズー型定理 | シナジー π とベズー型定理の手動・全数検証 | [index.html](https://kanataproject.github.io/higher-group-theory-verifier/) |
 | Ta9 セクト・位数の法則 | Thm2.6・Thm3.9・Thm4.32 の全数検証 | [ta9.html](https://kanataproject.github.io/higher-group-theory-verifier/ta9.html) |
 | SCh(G) 完全不変量の探索 | 相乗チャウ環による群の識別実験 | [sch.html](https://kanataproject.github.io/higher-group-theory-verifier/sch.html) |
-| カスタム検証 | 任意の有限群を定義して検証 | [custom.html](https://kanataproject.github.io/higher-group-theory-verifier/custom.html) |
+| カスタム群 検証・計算 | 任意の有限群を構成して全定理を検証・計算 | [custom.html](https://kanataproject.github.io/higher-group-theory-verifier/custom.html) |
 
 ---
 
@@ -24,7 +24,7 @@
 
 $$|H| \times |A| \times |K| = \sum_i m^{(i)} |H \cap K^{\alpha(i)}|$$
 
-**全数検証結果:**
+**全数検証結果（プリセット群）:**
 
 | 群 | 総ケース数 | 成立 | 不成立 |
 |---|---|---|---|
@@ -46,7 +46,7 @@ $$\text{Theorem 3.9:} \quad |H_1 H_2 \cdots H_n| \geq n \times \max(|H_1|, |H_n|
 
 $$\text{Theorem 4.32:} \quad |G| - |K_1 K_2 \cdots K_m| \geq \max(|K_1|, |K_m|)$$
 
-**全数検証結果:**
+**全数検証結果（プリセット群）:**
 
 | 群 | 総セクト数 | Thm 2.6 | Thm 3.9 | Thm 4.32 | 不成立 |
 |---|---|---|---|---|---|
@@ -62,7 +62,7 @@ $$\text{Theorem 4.32:} \quad |G| - |K_1 K_2 \cdots K_m| \geq \max(|K_1|, |K_m|)$
 
 相乗チャウ環 SCh(G) を用いて、非同型な群が識別できるかを実験します。
 
-**注意:** このツールの指紋は簡易的なフィルターです。「指紋が違う → 確実に非同型（100%信頼）」ですが、「指紋が同じ → 同型とは限らない」点に注意してください。
+**注意:** 「指紋が違う → 確実に非同型（100%信頼）」ですが、「指紋が同じ → 同型とは限らない」点に注意してください。このツールは簡易的なフィルターであり、SCh(G) が完全不変量かどうかは未解決問題です。
 
 **全ペア比較結果（登録8群、28ペア）:**
 
@@ -73,15 +73,28 @@ $$\text{Theorem 4.32:} \quad |G| - |K_1 K_2 \cdots K_m| \geq \max(|K_1|, |K_m|)$
 
 ---
 
-## カスタム検証 — 任意の有限群で検証
+## カスタム群 検証・計算
 
-乗積表を入力するだけで、任意の有限群に対して全定理を検証できます。既存の群だけでなく、研究者が独自に定義した群も検証対象にできます。
+基本群（Z_n・D_n・S_n・Q₈）を直積で組み合わせて任意の有限群を構成し、全定理を検証・計算できます。
+
+**対応している基本群:**
+
+| 記号 | 内容 | 制限 |
+|---|---|---|
+| Z_n | 位数nの巡回群 | n ≤ 20 |
+| D_n | 位数2nの二面体群 | n ≤ 20 |
+| S_n | n!元の対称群 | n ≤ 4（S₅以上は計算コスト過大のため対象外） |
+| Q₈ | 四元数群（8元） | — |
+
+直積（×）で組み合わせ可能。位数128超は制限あり。
+
+**計算の透明性:** 各ステップの計算過程（シナジーの全写像・両側コセット分解・重複度）を全て表示します。
 
 ---
 
 ## 総計 / Total
 
-全ツール合計 **39,439 ケース**、不成立 **0 件**。
+プリセット群による全検証ケース合計 **39,439 件**、不成立 **0 件**。
 
 ---
 
