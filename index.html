@@ -1,141 +1,197 @@
-
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高次群論　シナジー計算機</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+:root {
+  --bg: #0f1117;
+  --bg2: #1a1d27;
+  --bg3: #22263a;
+  --border: #2e3350;
+  --text: #e8eaf0;
+  --text2: #8b91b0;
+  --text3: #555c7a;
+  --green: #4ade80;
+  --green-bg: rgba(74,222,128,0.1);
+  --green-border: rgba(74,222,128,0.3);
+  --blue: #60a5fa;
+  --blue-bg: rgba(96,165,250,0.1);
+  --blue-border: rgba(96,165,250,0.3);
+  --orange: #fb923c;
+  --orange-bg: rgba(251,146,60,0.1);
+  --orange-border: rgba(251,146,60,0.3);
+  --red: #f87171;
+  --red-bg: rgba(248,113,113,0.1);
+  --red-border: rgba(248,113,113,0.3);
+  --yellow: #fbbf24;
+  --yellow-bg: rgba(251,191,36,0.1);
+  --yellow-border: rgba(251,191,36,0.3);
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Noto Sans JP', sans-serif;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-.app{padding:1rem 0;max-width:680px;font-family:var(--font-sans)}
-h2{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
-.sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem}
-.tabs{display:flex;gap:0;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden;margin-bottom:1.25rem;width:fit-content}
-.tab{padding:7px 18px;font-size:13px;cursor:pointer;background:transparent;border:none;color:var(--color-text-secondary);transition:all .15s}
-.tab.active{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:2rem 1.25rem}
+header{margin-bottom:2rem}
+h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.sub{font-size:13px;color:var(--text2)}
+.tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:1.5rem;width:fit-content}
+.tab{padding:8px 20px;font-size:13px;cursor:pointer;background:transparent;border:none;color:var(--text2);font-family:var(--sans);transition:all .15s}
+.tab.active{background:var(--bg3);color:var(--text);font-weight:500}
 .pane{display:none}.pane.active{display:block}
-.sec{font-size:12px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
-.group-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.25rem}
-.gbtn{padding:6px 14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px;cursor:pointer;transition:all .15s}
-.gbtn.active{background:var(--color-background-info);border-color:var(--color-border-info);color:var(--color-text-info)}
-.panel{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:12px}
-.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.panel-label{font-size:14px;font-weight:500;color:var(--color-text-primary)}
-.panel-hint{font-size:11px;color:var(--color-text-tertiary)}
+.sec{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.group-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem}
+.gbtn{padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.gbtn:hover{border-color:var(--blue-border);color:var(--blue)}
+.gbtn.active{background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue)}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:12px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.panel-label{font-size:14px;font-weight:500}
+.panel-hint{font-size:11px;color:var(--text3)}
 .sg-list{display:flex;flex-direction:column;gap:6px}
-.sg-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;transition:all .15s;user-select:none}
-.sg-row:hover:not(.disabled){background:var(--color-background-secondary)}
-.sg-row.selH{background:var(--color-background-success);border-color:var(--color-border-success)}
-.sg-row.selK{background:var(--color-background-warning);border-color:var(--color-border-warning)}
-.sg-row.disabled{opacity:.35;cursor:not-allowed}
-.sg-check{width:16px;height:16px;border:0.5px solid var(--color-border-secondary);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px}
-.sg-row.selH .sg-check{background:var(--color-text-success);border-color:var(--color-text-success);color:#fff}
-.sg-row.selK .sg-check{background:var(--color-text-warning);border-color:var(--color-text-warning);color:#fff}
-.sg-elems{font-size:12px;font-family:var(--font-mono);color:var(--color-text-secondary);flex:1}
-.sg-order{font-size:11px;color:var(--color-text-tertiary);min-width:40px;text-align:right}
-.a-area{display:flex;flex-wrap:wrap;gap:6px}
-.atag{padding:4px 12px;border-radius:20px;font-size:12px;font-family:var(--font-mono);cursor:pointer;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all .15s;user-select:none}
-.atag.on{background:var(--color-background-danger);border-color:var(--color-border-danger);color:var(--color-text-danger)}
-.run-btn{width:100%;padding:11px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:14px;cursor:pointer;margin-bottom:1.25rem;transition:all .15s}
-.run-btn:hover{background:var(--color-background-tertiary)}
-.formula-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem;font-size:14px}
-.lhs{color:var(--color-text-info);font-weight:500}
-.rhs{color:var(--color-text-success);font-weight:500}
-.ok{color:var(--color-text-success);font-weight:500;margin-left:8px}
-.coset-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 14px;margin-bottom:8px}
-.coset-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px}
-.coset-name{font-size:13px;font-weight:500;font-family:var(--font-mono);color:var(--color-text-primary)}
-.badges{display:flex;gap:6px;flex-wrap:wrap}
-.badge{padding:2px 8px;border-radius:12px;font-size:11px;font-weight:500}
-.bw{background:var(--color-background-danger);color:var(--color-text-danger)}
-.bm{background:var(--color-background-warning);color:var(--color-text-warning)}
-.bi{background:var(--color-background-success);color:var(--color-text-success)}
-.elems-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px}
-.elem-chip{padding:2px 8px;background:var(--color-background-secondary);border-radius:12px;font-size:11px;font-family:var(--font-mono);color:var(--color-text-secondary)}
-.contrib-note{font-size:11px;color:var(--color-text-tertiary)}
-.syn-toggle{font-size:12px;color:var(--color-text-secondary);cursor:pointer;padding:4px 0;background:none;border:none;margin-bottom:8px}
-.syn-table{font-size:12px;font-family:var(--font-mono);border-collapse:collapse;width:100%}
-.syn-table td{padding:3px 8px;border-bottom:0.5px solid var(--color-border-tertiary)}
-.syn-table td:first-child{color:var(--color-text-secondary)}
-.err{color:var(--color-text-danger);font-size:13px;padding:8px 12px;background:var(--color-background-danger);border-radius:var(--border-radius-md);margin-bottom:1rem}
-.need-sel{font-size:13px;color:var(--color-text-tertiary);padding:4px 0}
+.sg-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s;user-select:none}
+.sg-row:hover:not(.disabled){background:var(--bg3);border-color:var(--text3)}
+.sg-row.selH{background:var(--green-bg);border-color:var(--green-border)}
+.sg-row.selK{background:var(--yellow-bg);border-color:var(--yellow-border)}
+.sg-row.disabled{opacity:.3;cursor:not-allowed}
+.sg-check{width:18px;height:18px;border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:#fff}
+.sg-row.selH .sg-check{background:var(--green);border-color:var(--green)}
+.sg-row.selK .sg-check{background:var(--yellow);border-color:var(--yellow);color:#000}
+.sg-elems{font-size:12px;font-family:var(--mono);color:var(--text2);flex:1}
+.sg-order{font-size:11px;color:var(--text3);min-width:50px;text-align:right;font-family:var(--mono)}
+.a-area{display:flex;flex-wrap:wrap;gap:6px;min-height:36px;align-items:center}
+.atag{padding:5px 14px;border-radius:20px;font-size:12px;font-family:var(--mono);cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .15s;user-select:none}
+.atag:hover{border-color:var(--red-border);color:var(--red)}
+.atag.on{background:var(--red-bg);border-color:var(--red-border);color:var(--red)}
+.need-sel{font-size:13px;color:var(--text3)}
+.run-btn{width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text);font-size:14px;cursor:pointer;font-family:var(--sans);margin-bottom:1.5rem;transition:all .15s}
+.run-btn:hover{border-color:var(--blue-border);color:var(--blue)}
 .result{display:none}.result.show{display:block}
-/* 全数検証タブ */
-.verify-group-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+.formula-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:14px;line-height:1.8}
+.lhs{color:var(--blue);font-weight:500;font-family:var(--mono)}
+.rhs{color:var(--green);font-weight:500;font-family:var(--mono)}
+.ok{color:var(--green);font-weight:700;margin-left:8px}
+.ng{color:var(--red);font-weight:700;margin-left:8px}
+.coset-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:8px}
+.coset-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+.coset-name{font-size:13px;font-weight:500;font-family:var(--mono);color:var(--text)}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{padding:2px 10px;border-radius:12px;font-size:11px;font-weight:500;font-family:var(--mono)}
+.bw{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.bm{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-border)}
+.bi{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.elems-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.elem-chip{padding:2px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;font-size:11px;font-family:var(--mono);color:var(--text2)}
+.contrib-note{font-size:11px;color:var(--text3);font-family:var(--mono)}
+.syn-toggle{font-size:12px;color:var(--text3);cursor:pointer;padding:6px 0;background:none;border:none;font-family:var(--sans);color:var(--text2);transition:color .15s}
+.syn-toggle:hover{color:var(--blue)}
+.syn-table{font-size:12px;font-family:var(--mono);border-collapse:collapse;width:100%;margin-top:8px}
+.syn-table td{padding:4px 10px;border-bottom:1px solid var(--border);color:var(--text2)}
+.syn-table td:last-child{color:var(--text);font-weight:500}
+.err{color:var(--red);font-size:13px;padding:10px 14px;background:var(--red-bg);border:1px solid var(--red-border);border-radius:8px;margin-bottom:1rem}
+/* 全数検証 */
 .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
-.stat-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;text-align:center}
-.stat-num{font-size:22px;font-weight:500;color:var(--color-text-primary)}
-.stat-label{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
-.stat-num.ok{color:var(--color-text-success)}
-.stat-num.fail{color:var(--color-text-danger)}
-.progress-wrap{background:var(--color-background-secondary);border-radius:4px;height:6px;margin-bottom:1rem;overflow:hidden}
-.progress-bar{height:100%;background:var(--color-text-info);border-radius:4px;transition:width .1s;width:0%}
-.log-area{font-size:11px;font-family:var(--font-mono);max-height:260px;overflow-y:auto;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px}
-.log-row{padding:3px 0;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;gap:8px;align-items:center}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.stat-num{font-size:26px;font-weight:700;font-family:var(--mono);color:var(--text)}
+.stat-num.ok{color:var(--green)}
+.stat-num.fail{color:var(--red)}
+.stat-label{font-size:11px;color:var(--text3);margin-top:4px}
+.progress-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:4px;height:6px;margin-bottom:1rem;overflow:hidden}
+.progress-bar{height:100%;background:var(--blue);border-radius:4px;transition:width .1s;width:0%}
+.log-area{font-size:11px;font-family:var(--mono);max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:8px;background:var(--bg2)}
+.log-row{padding:4px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center}
 .log-row:last-child{border-bottom:none}
-.log-ok{color:var(--color-text-success);font-size:10px;flex-shrink:0}
-.log-fail{color:var(--color-text-danger);font-size:10px;flex-shrink:0}
-.log-desc{color:var(--color-text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.log-eq{color:var(--color-text-tertiary);flex-shrink:0}
-.dl-btn{margin-top:10px;width:100%;padding:9px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px;cursor:pointer;display:none}
+.log-ok{color:var(--green);flex-shrink:0}
+.log-fail{color:var(--red);flex-shrink:0}
+.log-desc{color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log-eq{color:var(--text3);flex-shrink:0}
+.dl-btn{margin-top:12px;width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--sans);display:none;transition:all .15s}
+.dl-btn:hover{border-color:var(--green-border);color:var(--green)}
 .dl-btn.show{display:block}
-.vrun-btn{width:100%;padding:11px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:14px;cursor:pointer;margin-bottom:1rem;transition:all .15s}
-.vrun-btn:hover{background:var(--color-background-tertiary)}
+.vrun-btn{width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text);font-size:14px;cursor:pointer;font-family:var(--sans);margin-bottom:1rem;transition:all .15s}
+.vrun-btn:hover{border-color:var(--blue-border);color:var(--blue)}
+.vrun-btn:disabled{opacity:.4;cursor:not-allowed}
+.divider{height:1px;background:var(--border);margin:1.5rem 0}
+footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:11px;color:var(--text3);line-height:1.8}
+footer a{color:var(--text2);text-decoration:none}
+footer a:hover{color:var(--blue)}
 </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>高次群論　シナジー計算機</h1>
+    <p class="sub">高村茂（京都大学）によるベズー型定理の計算機検証ツール　—　手動検証・全数自動検証に対応</p>
+  </header>
 
-<div class="app">
-<h2>高次群論　シナジー計算機</h2>
-<p class="sub">手動検証と全数自動検証の両方に対応しています。</p>
-
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('manual')">手動検証</button>
-  <button class="tab" onclick="switchTab('auto')">全数自動検証</button>
-</div>
-
-<!-- 手動検証タブ -->
-<div class="pane active" id="pane-manual">
-  <div class="sec">群を選ぶ</div>
-  <div class="group-row" id="group-row"></div>
-
-  <div class="panel">
-    <div class="panel-head">
-      <span class="panel-label">部分群 H <span style="font-size:12px;font-weight:400;color:var(--color-text-tertiary)">— 左から挟む</span></span>
-      <span class="panel-hint">クリックで選択</span>
-    </div>
-    <div class="sg-list" id="H-list"></div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('manual')">手動検証</button>
+    <button class="tab" onclick="switchTab('auto')">全数自動検証</button>
   </div>
 
-  <div class="panel">
-    <div class="panel-head">
-      <span class="panel-label">部分群 K <span style="font-size:12px;font-weight:400;color:var(--color-text-tertiary)">— 右から挟む</span></span>
-      <span class="panel-hint">H と同じ部分群は選択不可</span>
+  <!-- 手動検証 -->
+  <div class="pane active" id="pane-manual">
+    <div class="sec">群を選ぶ</div>
+    <div class="group-row" id="group-row"></div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-label">部分群 H <span style="font-size:12px;font-weight:400;color:var(--text3)">— 左から挟む</span></span>
+        <span class="panel-hint">クリックで選択</span>
+      </div>
+      <div class="sg-list" id="H-list"></div>
     </div>
-    <div class="sg-list" id="K-list"></div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-label">部分群 K <span style="font-size:12px;font-weight:400;color:var(--text3)">— 右から挟む</span></span>
+        <span class="panel-hint">H と同じ部分群は選択不可</span>
+      </div>
+      <div class="sg-list" id="K-list"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-label">集合 A <span style="font-size:12px;font-weight:400;color:var(--text3)">— 任意の部分集合</span></span>
+        <span class="panel-hint">複数選択可</span>
+      </div>
+      <div class="a-area" id="A-area"></div>
+    </div>
+
+    <button class="run-btn" onclick="computeManual()">シナジー π を計算してベズー型定理を検証 →</button>
+    <div class="result" id="manual-result"></div>
   </div>
 
-  <div class="panel">
-    <div class="panel-head">
-      <span class="panel-label">集合 A <span style="font-size:12px;font-weight:400;color:var(--color-text-tertiary)">— 任意の部分集合</span></span>
-      <span class="panel-hint">複数選択可</span>
+  <!-- 全数検証 -->
+  <div class="pane" id="pane-auto">
+    <div class="sec">検証する群を選ぶ</div>
+    <div class="group-row" id="vgroup-row"></div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;line-height:1.7">選んだ群の全部分群ペア (H,K) × 全非空部分集合 A の組み合わせを網羅的に検証します。<br>不成立ケースは反証候補として赤でハイライトされます。</p>
+    <button class="vrun-btn" id="vrun-btn" onclick="runAuto()">全数検証を開始 →</button>
+    <div id="auto-result" style="display:none">
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num" id="s-total">0</div><div class="stat-label">総ケース数</div></div>
+        <div class="stat-card"><div class="stat-num ok" id="s-ok">0</div><div class="stat-label">成立</div></div>
+        <div class="stat-card"><div class="stat-num fail" id="s-fail">0</div><div class="stat-label">不成立（反証候補）</div></div>
+      </div>
+      <div class="progress-wrap"><div class="progress-bar" id="prog-bar"></div></div>
+      <div class="log-area" id="log-area"></div>
+      <button class="dl-btn" id="dl-btn" onclick="downloadCSV()">結果を CSV でダウンロード ↓</button>
     </div>
-    <div class="a-area" id="A-area"></div>
   </div>
 
-  <button class="run-btn" onclick="computeManual()">シナジー π を計算してベズー型定理を検証 →</button>
-  <div class="result" id="manual-result"></div>
-</div>
-
-<!-- 全数検証タブ -->
-<div class="pane" id="pane-auto">
-  <div class="sec">検証する群を選ぶ</div>
-  <div class="verify-group-row" id="vgroup-row"></div>
-  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem">選んだ群の全部分群ペア (H,K) × 全非空部分集合 A の組み合わせを網羅的に検証します。</p>
-  <button class="vrun-btn" id="vrun-btn" onclick="runAuto()">全数検証を開始 →</button>
-  <div id="auto-result" style="display:none">
-    <div class="stat-grid">
-      <div class="stat-card"><div class="stat-num" id="s-total">0</div><div class="stat-label">総ケース数</div></div>
-      <div class="stat-card"><div class="stat-num ok" id="s-ok">0</div><div class="stat-label">成立</div></div>
-      <div class="stat-card"><div class="stat-num fail" id="s-fail">0</div><div class="stat-label">不成立（反証候補）</div></div>
-    </div>
-    <div class="progress-wrap"><div class="progress-bar" id="prog-bar"></div></div>
-    <div class="log-area" id="log-area"></div>
-    <button class="dl-btn" id="dl-btn" onclick="downloadCSV()">結果を CSV でダウンロード ↓</button>
-  </div>
-</div>
+  <div class="divider"></div>
+  <footer>
+    <strong>参照論文</strong><br>
+    Takamura, S. "Bézout type theorem for higher order objects of groups" (2024), to appear in <em>Osaka J. Math.</em><br>
+    <br>
+    <strong>ライセンス</strong><br>
+    このツールは <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a> でライセンスされています。<br>
+    <a href="https://github.com/kanataproject/higher-group-theory-verifier" target="_blank">GitHub リポジトリ</a>
+  </footer>
 </div>
 
 <script>
@@ -213,7 +269,7 @@ function renderGroups(){
     const b=document.createElement("button");
     b.className="gbtn"+(vG===v?" active":"");
     b.textContent=v.name;
-    b.onclick=()=>{vG=v;document.getElementById("auto-result").style.display="none";document.getElementById("dl-btn").className="dl-btn";b.parentNode.querySelectorAll(".gbtn").forEach(x=>x.classList.remove("active"));b.classList.add("active");vG=v;};
+    b.onclick=()=>{vG=v;document.getElementById("auto-result").style.display="none";document.getElementById("dl-btn").className="dl-btn";vr.querySelectorAll(".gbtn").forEach(x=>x.classList.remove("active"));b.classList.add("active");};
     vr.appendChild(b);
   });
 }
@@ -265,12 +321,12 @@ function computeManual(){
   const triples=[];
   for(let h of selH)for(let a of selA)for(let k of selK)triples.push({h,a,k,r:G.mul(G.mul(h,a),k)});
   let html=`
-  <div class="sec">ベズー型定理の検証</div>
+  <div class="sec" style="margin-top:0">ベズー型定理の検証</div>
   <div class="formula-box">
     <span class="lhs">|H|×|A|×|K| = ${selH.length}×${selA.size}×${selK.length} = ${LHS}</span>
-    <span style="color:var(--color-text-primary)"> = Σ m<sup>(i)</sup>|H∩K<sup>α</sup>| = </span>
+    <span style="color:var(--text2)"> = Σ m<sup>(i)</sup>|H∩K<sup>α</sup>| = </span>
     <span class="rhs">${RHS}</span>
-    <span class="ok">${ok?"✓ 成立":"✗ 不成立"}</span>
+    <span class="${ok?"ok":"ng"}">${ok?"✓ 成立":"✗ 不成立"}</span>
   </div>
   <div class="sec">両側コセット分解　HAK = ⊔ Hα<sup>(i)</sup>K</div>`;
   cosets.forEach((c,i)=>{
@@ -290,8 +346,8 @@ function computeManual(){
   html+=`<button class="syn-toggle" onclick="toggleSyn()">${showSyn?"シナジー写像を隠す ▲":"シナジー写像 π(h,a,k)=hak を全表示 ▼"}</button>
   <div id="syn-detail" style="display:${showSyn?"block":"none"}">
     <table class="syn-table">
-      <tr><td style="color:var(--color-text-tertiary)">入力 (h, a, k)</td><td></td><td style="color:var(--color-text-tertiary)">出力 hak</td></tr>
-      ${triples.map(t=>`<tr><td>(${t.h}, ${t.a}, ${t.k})</td><td style="color:var(--color-text-tertiary)">→</td><td>${t.r}</td></tr>`).join("")}
+      <tr><td style="color:var(--text3)">入力 (h, a, k)</td><td></td><td style="color:var(--text3)">出力 hak</td></tr>
+      ${triples.map(t=>`<tr><td>(${t.h}, ${t.a}, ${t.k})</td><td style="color:var(--text3)">→</td><td>${t.r}</td></tr>`).join("")}
     </table>
   </div>`;
   res.className="result show";res.innerHTML=html;
@@ -313,9 +369,8 @@ async function runAuto(){
   document.getElementById("dl-btn").className="dl-btn";
   const log=document.getElementById("log-area"),bar=document.getElementById("prog-bar");
   log.innerHTML="";csvData=[["群","H","K","A","LHS","RHS","成立"]];
-  let total=0,okCount=0,failCount=0;
+  let okCount=0,failCount=0;
   const sgs=allSubgroups(vG);
-  // 全部分群ペア × 全非空部分集合A
   const tasks=[];
   for(let hi=0;hi<sgs.length;hi++)for(let ki=0;ki<sgs.length;ki++){
     const H=sgs[hi],K=sgs[ki];
@@ -327,11 +382,10 @@ async function runAuto(){
   }
   const T=tasks.length;
   document.getElementById("s-total").textContent=T;
-
   for(let i=0;i<T;i++){
     const {H,K,A}=tasks[i];
     const {LHS,RHS,ok}=bezout(vG,H,K,A);
-    total++;ok?okCount++:failCount++;
+    ok?okCount++:failCount++;
     csvData.push([vG.name,`{${H.join(",")}}`,`{${K.join(",")}}`,`{${A.join(",")}}`,LHS,RHS,ok?"成立":"不成立"]);
     document.getElementById("s-ok").textContent=okCount;
     document.getElementById("s-fail").textContent=failCount;
@@ -363,3 +417,5 @@ function downloadCSV(){
 
 renderAll();
 </script>
+</body>
+</html>
