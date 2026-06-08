@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高次群論　カスタム群 検証・計算ツール</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;--border:#2e3350;--text:#e8eaf0;--text2:#8b91b0;--text3:#555c7a;--green:#4ade80;--green-bg:rgba(74,222,128,0.1);--green-border:rgba(74,222,128,0.3);--blue:#60a5fa;--blue-bg:rgba(96,165,250,0.1);--blue-border:rgba(96,165,250,0.3);--red:#f87171;--red-bg:rgba(248,113,113,0.1);--red-border:rgba(248,113,113,0.3);--yellow:#fbbf24;--yellow-bg:rgba(251,191,36,0.1);--yellow-border:rgba(251,191,36,0.3);--mono:'IBM Plex Mono',monospace;--sans:'Noto Sans JP',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 0}
+.nav-inner{max-width:760px;margin:0 auto;padding:0 1.25rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nav-label{font-size:12px;color:var(--text3);margin-right:8px}
+.nav-link{padding:5px 14px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--sans);text-decoration:none;color:var(--text2);transition:all .15s}
+.nav-link.active{background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue)}
+.wrap{max-width:760px;margin:0 auto;padding:2rem 1.25rem}
+h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.sub{font-size:13px;color:var(--text2);margin-bottom:1.5rem;line-height:1.6}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:12px}
+.panel-title{font-size:14px;font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.step-badge{padding:2px 10px;border-radius:12px;font-size:11px;font-weight:500;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.builder-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.builder-label{font-size:13px;color:var(--text2);flex-shrink:0}
+.gselect{padding:7px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;cursor:pointer}
+.gselect:focus{border-color:var(--blue-border)}
+.ninput{width:60px;padding:7px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;text-align:center}
+.ninput:focus{border-color:var(--blue-border)}
+.op-badge{padding:4px 12px;border-radius:6px;font-size:14px;font-family:var(--mono);background:var(--bg3);border:1px solid var(--border);color:var(--text2)}
+.add-btn{padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.add-btn:hover{border-color:var(--blue-border);color:var(--blue)}
+.remove-btn{padding:3px 8px;border:1px solid var(--red-border);border-radius:6px;background:transparent;color:var(--red);font-size:11px;cursor:pointer;font-family:var(--sans)}
+.preview-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:13px;color:var(--blue);margin-bottom:12px;min-height:36px}
+.run-btn{width:100%;padding:11px;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text);font-size:14px;cursor:pointer;font-family:var(--sans);margin-top:4px;transition:all .15s}
+.run-btn:hover{border-color:var(--blue-border);color:var(--blue)}
+.tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:1.5rem;width:fit-content}
+.tab{padding:7px 16px;font-size:12px;cursor:pointer;background:transparent;border:none;color:var(--text2);font-family:var(--sans);transition:all .15s}
+.tab.active{background:var(--bg3);color:var(--text);font-weight:500}
+.pane{display:none}.pane.active{display:block}
+.check-row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.check-row:last-child{border-bottom:none}
+.ck{font-size:14px;flex-shrink:0;margin-top:1px}
+.ck-ok{color:var(--green)}.ck-fail{color:var(--red)}
+.check-label{color:var(--text);flex:1}
+.check-detail{color:var(--text3);font-family:var(--mono);font-size:11px;margin-top:2px}
+.theorem-block{background:var(--bg3);border-radius:8px;padding:10px 14px;margin-bottom:8px}
+.theorem-name{font-size:12px;font-weight:500;color:var(--blue);margin-bottom:6px;font-family:var(--mono)}
+.theorem-result{font-size:12px;font-family:var(--mono);color:var(--text2);line-height:1.8}
+.theorem-result .ok{color:var(--green)}.theorem-result .fail{color:var(--red)}.theorem-result .note{color:var(--yellow)}
+.sg-chip{display:inline-block;padding:2px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;font-family:var(--mono);font-size:11px;color:var(--text2);margin:2px}
+.etag{padding:3px 10px;border-radius:20px;font-size:11px;font-family:var(--mono);cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .15s;user-select:none;display:inline-block;margin:2px}
+.etag.onH{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
+.etag.onA{background:var(--red-bg);border-color:var(--red-border);color:var(--red)}
+.etag.onK{background:var(--yellow-bg);border-color:var(--yellow-border);color:var(--yellow)}
+.calc-result{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:12px;font-size:12px;font-family:var(--mono);line-height:2;color:var(--text2)}
+.calc-result .hl{color:var(--blue);font-weight:500}
+.calc-result .val{color:var(--green)}
+.calc-result .step{color:var(--text3);font-size:11px}
+.info-box{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--text2);line-height:1.7}
+.divider{height:1px;background:var(--border);margin:1.5rem 0}
+footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:11px;color:var(--text3);line-height:1.8}
+footer a{color:var(--text2);text-decoration:none}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <span class="nav-label">高次群論 検証ツール</span>
+    <a href="index.html" class="nav-link">Ta10 ベズー型定理</a>
+    <a href="ta9.html" class="nav-link">Ta9 セクト・位数の法則</a>
+    <a href="sch.html" class="nav-link">SCh(G) 完全不変量の探索</a>
+    <a href="custom.html" class="nav-link active">カスタム群 検証・計算</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <h1>カスタム群 検証・計算ツール</h1>
+  <p class="sub">基本群を組み合わせて任意の有限群を構成し、高次群論の全定理を検証・計算できます。計算の全過程を透明に表示します。</p>
+
+  <div class="panel">
+    <div class="panel-title"><span class="step-badge">Step 1</span>群を構成する</div>
+
+    <div class="info-box">
+      基本群を選んで直積（×）で組み合わせます。<br>
+      <strong style="color:var(--text)">Z_n</strong>：位数nの巡回群　
+      <strong style="color:var(--text)">D_n</strong>：位数2nの二面体群（正n角形の対称性）　
+      <strong style="color:var(--text)">S_n</strong>：n!元の対称群　
+      <strong style="color:var(--text)">Q₈</strong>：四元数群（8元）
+    </div>
+
+    <div id="factor-list"></div>
+    <button class="add-btn" onclick="addFactor()" style="margin-bottom:12px">＋ 基本群を追加</button>
+
+    <div style="font-size:12px;color:var(--text3);margin-bottom:6px">構成される群：</div>
+    <div class="preview-box" id="preview">—</div>
+    <button class="run-btn" onclick="buildAndRun()">群を構成して全定理を検証・計算 →</button>
+  </div>
+
+  <div id="result-area" style="display:none">
+    <div class="panel">
+      <div class="panel-title"><span class="step-badge">Step 2</span>群の情報</div>
+      <div id="group-info"></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('theorems')">定理の検証</button>
+      <button class="tab" onclick="switchTab('subgroups')">部分群一覧</button>
+      <button class="tab" onclick="switchTab('calc')">計算機モード</button>
+    </div>
+
+    <div class="pane active" id="pane-theorems"><div id="thm-content"></div></div>
+    <div class="pane" id="pane-subgroups"><div id="sg-content"></div></div>
+    <div class="pane" id="pane-calc">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;line-height:1.7">H・A・K を選んでシナジー π(h,a,k)=hak の全過程を計算します。</p>
+      <div class="panel"><div style="font-size:13px;font-weight:500;margin-bottom:8px">部分群 H（左から挟む）</div><div id="H-toggle"></div></div>
+      <div class="panel"><div style="font-size:13px;font-weight:500;margin-bottom:8px">集合 A（真ん中）</div><div id="A-toggle"></div></div>
+      <div class="panel"><div style="font-size:13px;font-weight:500;margin-bottom:8px">部分群 K（右から挟む）</div><div id="K-toggle"></div></div>
+      <button class="run-btn" onclick="runCalc()">シナジー π を計算 →</button>
+      <div id="calc-result"></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <footer>
+    基本群（Z_n, D_n, S_n, Q₈）の直積で任意の有限群を構成して検証できます。<br>
+    計算機モードでは H・A・K を選ぶとシナジーの全過程と両側コセット分解が表示されます。<br><br>
+    <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a>
+  </footer>
+</div>
+
+<script>
+let G={elems:[],mul:null,name:""};
+let subgroups=[];
+let selH=new Set(),selA=new Set(),selK=new Set();
+let factors=[{type:"Z",n:4}];
+
+// ---- 基本群の生成 ----
+function makeZ(n){
+  const elems=Array.from({length:n},(_,i)=>n===1?`0`:`${i}`);
+  const mul=(a,b)=>String((+a+ +b)%n);
+  return{elems,mul,name:`Z${n}`};
+}
+
+function makeD(n){
+  // D_n: 元は r0..r(n-1), s0..s(n-1)  (位数2n)
+  const elems=[];
+  for(let i=0;i<n;i++)elems.push(`r${i}`);
+  for(let i=0;i<n;i++)elems.push(`s${i}`);
+  const mul=(a,b)=>{
+    const isR=x=>x[0]==="r", idx=x=>+x.slice(1);
+    if(isR(a)&&isR(b))return `r${(idx(a)+idx(b))%n}`;
+    if(isR(a)&&!isR(b))return `s${(idx(a)+idx(b))%n}`;
+    if(!isR(a)&&isR(b))return `s${(idx(b)-idx(a)+n)%n}`;
+    return `r${(idx(b)-idx(a)+n)%n}`;
+  };
+  return{elems,mul,name:`D${n}`};
+}
+
+function makeS(n){
+  // S_n: 元は全置換をタプル文字列で表現
+  function permToStr(p){return p.join("");}
+  function strToPerm(s){return s.split("").map(Number);}
+  const identity=Array.from({length:n},(_,i)=>i);
+  function allPerms(arr){
+    if(arr.length<=1)return[arr];
+    const result=[];
+    arr.forEach((v,i)=>{
+      const rest=[...arr.slice(0,i),...arr.slice(i+1)];
+      allPerms(rest).forEach(p=>result.push([v,...p]));
+    });
+    return result;
+  }
+  const perms=allPerms(identity);
+  const elems=perms.map(permToStr);
+  const mul=(a,b)=>{
+    const pa=strToPerm(a),pb=strToPerm(b);
+    return permToStr(pa.map(i=>pb[i]));
+  };
+  return{elems,mul,name:`S${n}`};
+}
+
+function makeQ8(){
+  const idx=["1","-1","i","-i","j","-j","k","-k"];
+  const T=[[0,1,2,3,4,5,6,7],[1,0,3,2,5,4,7,6],[2,3,1,0,6,7,5,4],[3,2,0,1,7,6,4,5],[4,5,7,6,1,0,2,3],[5,4,6,7,0,1,3,2],[6,7,4,5,3,2,1,0],[7,6,5,4,2,3,0,1]];
+  return{elems:idx,mul:(a,b)=>idx[T[idx.indexOf(a)][idx.indexOf(b)]],name:"Q8"};
+}
+
+function directProduct(g1,g2){
+  const elems=[];
+  for(let a of g1.elems)for(let b of g2.elems)elems.push(`(${a},${b})`);
+  const mul=(x,y)=>{
+    const [a1,b1]=parseDP(x),[a2,b2]=parseDP(y);
+    return `(${g1.mul(a1,a2)},${g2.mul(b1,b2)})`;
+  };
+  return{elems,mul,name:`${g1.name}×${g2.name}`};
+}
+
+function parseDP(s){
+  // "(a,b)" → ["a","b"]  ネスト対応
+  const inner=s.slice(1,s.length-1);
+  let depth=0,split=-1;
+  for(let i=0;i<inner.length;i++){
+    if(inner[i]==="(")depth++;
+    else if(inner[i]===")")depth--;
+    else if(inner[i]===","&&depth===0){split=i;break;}
+  }
+  return[inner.slice(0,split),inner.slice(split+1)];
+}
+
+function makeFactor(f){
+  if(f.type==="Z")return makeZ(f.n);
+  if(f.type==="D")return makeD(f.n);
+  if(f.type==="S")return makeS(f.n);
+  if(f.type==="Q8")return makeQ8();
+}
+
+// ---- UI ----
+function renderFactors(){
+  const fl=document.getElementById("factor-list");
+  fl.innerHTML="";
+  factors.forEach((f,i)=>{
+    const row=document.createElement("div");
+    row.className="builder-row";
+    row.innerHTML=`
+      ${i>0?`<span class="op-badge">×</span>`:""}
+      <select class="gselect" onchange="factors[${i}].type=this.value;factors[${i}].n=this.value==='Q8'?8:factors[${i}].n||4;renderFactors()" >
+        <option value="Z" ${f.type==="Z"?"selected":""}>Z_n（巡回群）</option>
+        <option value="D" ${f.type==="D"?"selected":""}>D_n（二面体群）</option>
+        <option value="S" ${f.type==="S"?"selected":""}>S_n（対称群）</option>
+        <option value="Q8" ${f.type==="Q8"?"selected":""}>Q₈（四元数群）</option>
+      </select>
+      ${f.type!=="Q8"?`<input class="ninput" type="number" min="1" max="${f.type==="S"?5:20}" value="${f.n}" onchange="factors[${i}].n=+this.value;renderFactors()">`:``}
+      ${i>0?`<button class="remove-btn" onclick="factors.splice(${i},1);renderFactors()">✕</button>`:""}
+    `;
+    fl.appendChild(row);
+  });
+  updatePreview();
+}
+
+function addFactor(){factors.push({type:"Z",n:2});renderFactors();}
+
+function updatePreview(){
+  try{
+    const parts=factors.map(f=>{
+      if(f.type==="Z")return`Z_${f.n}`;
+      if(f.type==="D")return`D_${f.n}（位数${2*f.n}）`;
+      if(f.type==="S")return`S_${f.n}（位数${factorial(f.n)}）`;
+      if(f.type==="Q8")return`Q₈`;
+    });
+    const totalSize=factors.reduce((s,f)=>{
+      if(f.type==="Z")return s*f.n;
+      if(f.type==="D")return s*2*f.n;
+      if(f.type==="S")return s*factorial(f.n);
+      if(f.type==="Q8")return s*8;
+    },1);
+    document.getElementById("preview").textContent=`${parts.join(" × ")}　（位数 ${totalSize}）`;
+  }catch(e){document.getElementById("preview").textContent="—";}
+}
+
+function factorial(n){return n<=1?1:n*factorial(n-1);}
+
+function buildAndRun(){
+  try{
+    // S_n の上限チェック
+    for(let f of factors){
+      if(f.type==="S"&&f.n>=5){
+        alert(`S${f.n}（位数${factorial(f.n)}）は計算コストが現実的でないため対象外です。\nS_n は n≤4 までご利用ください。`);
+        return;
+      }
+    }
+    let g=makeFactor(factors[0]);
+    for(let i=1;i<factors.length;i++)g=directProduct(g,makeFactor(factors[i]));
+    if(g.elems.length>128){alert(`位数${g.elems.length}は大きすぎます（上限128）\n部分群探索の計算コストが現実的でないため制限しています。`);return;}
+    G=g;
+    subgroups=allSubgroups();
+    selH=new Set();selA=new Set();selK=new Set();
+    renderGroupInfo();
+    renderTheorems();
+    renderSubgroups();
+    renderCalcToggles();
+    document.getElementById("result-area").style.display="block";
+    document.getElementById("result-area").scrollIntoView({behavior:"smooth"});
+  }catch(e){alert("構成エラー: "+e.message);}
+}
+
+function renderGroupInfo(){
+  const el=document.getElementById("group-info");
+  el.innerHTML=`
+    <div style="font-size:13px;font-family:var(--mono);color:var(--text);margin-bottom:8px">${G.name}　位数 ${G.elems.length}</div>
+    <div style="font-size:11px;color:var(--text3);font-family:var(--mono);line-height:1.8">
+      元: ${G.elems.slice(0,20).join(", ")}${G.elems.length>20?` ... 他${G.elems.length-20}個`:""}<br>
+      部分群数: ${subgroups.length}個
+    </div>`;
+}
+
+// ---- 群論の計算 ----
+function closure(gens){
+  const S=new Set([G.elems[0],...gens]);
+  let changed=true;
+  while(changed){
+    changed=false;
+    const arr=[...S];
+    for(let a of arr)for(let b of arr){
+      const r=G.mul(a,b);
+      if(!S.has(r)){S.add(r);changed=true;}
+    }
+  }
+  return [...S].sort((a,b)=>G.elems.indexOf(a)-G.elems.indexOf(b));
+}
+
+function allSubgroups(){
+  const result=new Map();
+  const add=sg=>{const key=[...sg].sort().join("|");if(!result.has(key))result.set(key,sg);};
+  add([G.elems[0]]);
+  for(let g of G.elems)add(closure([g]));
+  for(let i=0;i<G.elems.length;i++)
+    for(let j=i+1;j<G.elems.length;j++)
+      add(closure([G.elems[i],G.elems[j]]));
+  if(G.elems.length<=48){
+    for(let i=0;i<G.elems.length;i++)
+      for(let j=i+1;j<G.elems.length;j++)
+        for(let k=j+1;k<G.elems.length;k++)
+          add(closure([G.elems[i],G.elems[j],G.elems[k]]));
+  }
+  add(G.elems);
+  return [...result.values()].sort((a,b)=>a.length-b.length);
+}
+
+function gcd(a,b){return b===0?a:gcd(b,a%b);}
+function lcm(a,b){return a*b/gcd(a,b);}
+
+function sectElems(sgs){
+  let cur=new Set(sgs[0]);
+  for(let i=1;i<sgs.length;i++){
+    const next=new Set();
+    for(let x of cur)for(let h of sgs[i])next.add(G.mul(x,h));
+    cur=next;
+  }
+  return cur;
+}
+
+function isIrredundant(sgs){
+  if(sgs.length===1)return true;
+  const full=sectElems(sgs);
+  for(let i=0;i<sgs.length;i++){
+    const reduced=sgs.filter((_,j)=>j!==i);
+    if(sectElems(reduced).size>=full.size)return false;
+  }
+  return true;
+}
+
+function intersect(H,K){return H.filter(x=>K.includes(x));}
+function sectSize2(H,K){const s=new Set();for(let h of H)for(let k of K)s.add(G.mul(h,k));return s.size;}
+
+// ---- 定理の検証 ----
+function renderTheorems(){
+  const GSize=G.elems.length;
+  let html="";
+
+  // Ta10
+  html+=`<div class="theorem-block"><div class="theorem-name">Ta10 — ベズー型定理</div><div class="theorem-result">`;
+  let ta10ok=0,ta10fail=0;
+  const sgsT=subgroups.slice(0,Math.min(subgroups.length,5));
+  for(let hi=0;hi<sgsT.length;hi++)for(let ki=0;ki<sgsT.length;ki++){
+    const H=sgsT[hi],K=sgsT[ki];
+    for(let amask=1;amask<Math.min(1<<G.elems.length,32);amask++){
+      const A=G.elems.filter((_,i)=>amask>>i&1);
+      const res=bezout(H,A,K);
+      if(res.ok)ta10ok++;else{ta10fail++;html+=`<span class="fail">✗ H={${H.join(",")}} A={${A.join(",")}} K={${K.join(",")}} LHS=${res.LHS}≠RHS=${res.RHS}</span><br>`;}
+    }
+  }
+  html+=`<span class="${ta10fail===0?"ok":"fail"}">検証 ${ta10ok+ta10fail}件　不成立: ${ta10fail}件</span></div></div>`;
+
+  // Ta9
+  html+=`<div class="theorem-block"><div class="theorem-name">Ta9 — セクト・位数の法則</div><div class="theorem-result">`;
+  let f26=0,f39=0,f432=0,total=0,irrCount=0;
+  const tasks=[];
+  for(let n=1;n<=Math.min(3,subgroups.length);n++){
+    (function combo(start,cur){
+      if(cur.length===n){tasks.push([...cur]);return;}
+      for(let i=start;i<subgroups.length;i++)combo(i,[...cur,subgroups[i]]);
+    })(0,[]);
+  }
+  tasks.forEach(sgs=>{
+    const sect=sectElems(sgs);
+    const sectSz=sect.size;
+    const H1=sgs[0],Hn=sgs[sgs.length-1];
+    const h1=H1.length,hn=Hn.length;
+    const lcmV=lcm(h1,hn),maxV=Math.max(h1,hn),n=sgs.length;
+    const t26=sectSz%lcmV===0;
+    const irr=isIrredundant(sgs);
+    const t39=!irr||sectSz>=n*maxV;
+    const proper=sectSz<GSize;
+    const t432=!proper||(GSize-sectSz)>=maxV;
+    total++;if(irr)irrCount++;
+    if(!t26){f26++;html+=`<span class="fail">✗ Thm2.6: |sect|=${sectSz}, lcm=${lcmV}</span><br>`;}
+    if(!t39){f39++;html+=`<span class="fail">✗ Thm3.9: |sect|=${sectSz} &lt; n×max=${n*maxV}</span><br>`;}
+    if(!t432){f432++;html+=`<span class="fail">✗ Thm4.32: |G|-|sect|=${GSize-sectSz} &lt; ${maxV}</span><br>`;}
+  });
+  html+=`<span class="${f26+f39+f432===0?"ok":"fail"}">総セクト数: ${total}件 (irredundant: ${irrCount}件)</span><br>`;
+  html+=`<span class="${f26===0?"ok":"fail"}">Thm2.6不成立: ${f26}</span>　<span class="${f39===0?"ok":"fail"}">Thm3.9不成立: ${f39}</span>　<span class="${f432===0?"ok":"fail"}">Thm4.32不成立: ${f432}</span>`;
+  html+="</div></div>";
+
+  // SCh指紋
+  const orders=subgroups.map(s=>s.length).sort((a,b)=>a-b);
+  const counts={};orders.forEach(o=>counts[o]=(counts[o]||0)+1);
+  html+=`<div class="theorem-block"><div class="theorem-name">SCh(G) 指紋</div><div class="theorem-result">
+    部分群数: ${subgroups.length}個<br>
+    位数分布: ${Object.entries(counts).map(([o,c])=>`位数${o}が${c}個`).join("、")}<br>
+    <span class="note">→ 既存群との比較でSCh(G)による識別実験に使えます</span>
+  </div></div>`;
+
+  document.getElementById("thm-content").innerHTML=html;
+}
+
+function bezout(H,A,K){
+  const triples=[];
+  for(let h of H)for(let a of A)for(let k of K)triples.push({h,a,k,r:G.mul(G.mul(h,a),k)});
+  const LHS=H.length*A.length*K.length;
+  const HAK=new Set(triples.map(t=>t.r));
+  const assigned=new Set();let RHS=0;
+  for(let x of HAK){
+    if(assigned.has(x))continue;
+    const coset=new Set();
+    for(let h of H)for(let k of K)coset.add(G.mul(G.mul(h,x),k));
+    coset.forEach(e=>assigned.add(e));
+    let rep=null;
+    for(let a of A){const t=new Set();for(let h of H)for(let k of K)t.add(G.mul(G.mul(h,a),k));if([...coset].every(e=>t.has(e))&&t.size===coset.size){rep=a;break;}}
+    if(!rep)rep=x;
+    let aInv=G.elems[0];
+    for(let g of G.elems)if(G.mul(rep,g)===G.elems[0]){aInv=g;break;}
+    const Ka=new Set();for(let k of K)Ka.add(G.mul(G.mul(rep,k),aInv));
+    const HintKa=H.filter(h=>Ka.has(h));
+    let w=0;
+    for(let a of A){const t=new Set();for(let h of H)for(let k of K)t.add(G.mul(G.mul(h,a),k));if([...coset].every(e=>t.has(e))&&t.size===coset.size)w++;}
+    RHS+=w*H.length*K.length;
+  }
+  return{LHS,RHS,ok:LHS===RHS};
+}
+
+function renderSubgroups(){
+  let html=`<p style="font-size:13px;color:var(--text2);margin-bottom:12px">部分群: <strong style="color:var(--text)">${subgroups.length}個</strong></p>`;
+  subgroups.forEach((sg,i)=>{
+    html+=`<div style="margin-bottom:8px"><span style="font-size:11px;color:var(--text3);font-family:var(--mono)">H${i+1}　|H|=${sg.length}</span><br>`;
+    sg.forEach(e=>html+=`<span class="sg-chip">${e}</span>`);
+    html+="</div>";
+  });
+  document.getElementById("sg-content").innerHTML=html;
+}
+
+function renderCalcToggles(){
+  ["H","A","K"].forEach(id=>{
+    const area=document.getElementById(`${id}-toggle`);
+    area.innerHTML="";
+    const sel=id==="H"?selH:id==="A"?selA:selK;
+    G.elems.slice(0,64).forEach(e=>{
+      const t=document.createElement("span");
+      t.className=`etag ${sel.has(e)?"on"+id:""}`;
+      t.textContent=e;
+      t.onclick=()=>{sel.has(e)?sel.delete(e):sel.add(e);t.className=`etag ${sel.has(e)?"on"+id:""}`;};
+      area.appendChild(t);
+    });
+    if(G.elems.length>64){const m=document.createElement("span");m.style.cssText="font-size:11px;color:var(--text3);margin:4px";m.textContent=`他${G.elems.length-64}個`;area.appendChild(m);}
+  });
+}
+
+function runCalc(){
+  const H=[...selH],A=[...selA],K=[...selK];
+  const res=document.getElementById("calc-result");
+  if(!H.length||!A.length||!K.length){res.innerHTML=`<div style="color:var(--red);font-size:12px">H・A・K をそれぞれ1つ以上選んでください</div>`;return;}
+  const triples=[];
+  for(let h of H)for(let a of A)for(let k of K)triples.push({h,a,k,r:G.mul(G.mul(h,a),k)});
+  const LHS=H.length*A.length*K.length;
+  const HAK=new Set(triples.map(t=>t.r));
+  const assigned=new Set();const cosets=[];
+  for(let x of HAK){
+    if(assigned.has(x))continue;
+    const coset=new Set();
+    for(let h of H)for(let k of K)coset.add(G.mul(G.mul(h,x),k));
+    coset.forEach(e=>assigned.add(e));
+    let rep=null;
+    for(let a of A){const t=new Set();for(let h of H)for(let k of K)t.add(G.mul(G.mul(h,a),k));if([...coset].every(e=>t.has(e))&&t.size===coset.size){rep=a;break;}}
+    if(!rep)rep=x;
+    let aInv=G.elems[0];
+    for(let g of G.elems)if(G.mul(rep,g)===G.elems[0]){aInv=g;break;}
+    const Ka=new Set();for(let k of K)Ka.add(G.mul(G.mul(rep,k),aInv));
+    const HintKa=H.filter(h=>Ka.has(h));
+    let w=0;
+    for(let a of A){const t=new Set();for(let h of H)for(let k of K)t.add(G.mul(G.mul(h,a),k));if([...coset].every(e=>t.has(e))&&t.size===coset.size)w++;}
+    const contrib=w*H.length*K.length;
+    const mVal=HintKa.length>0?contrib/HintKa.length:0;
+    cosets.push({rep,elems:[...coset],w,HintKa,mVal,contrib});
+  }
+  const RHS=cosets.reduce((s,c)=>s+c.contrib,0);
+  const ok=LHS===RHS;
+  const showTriples=triples.slice(0,30);
+  res.innerHTML=`<div class="calc-result">
+    <span class="hl">入力</span><br>
+    <span class="step">H = {${H.join(", ")}}　|H| = ${H.length}</span><br>
+    <span class="step">A = {${A.join(", ")}}　|A| = ${A.length}</span><br>
+    <span class="step">K = {${K.join(", ")}}　|K| = ${K.length}</span><br>
+    <br>
+    <span class="hl">シナジー π(h,a,k)=hak（${triples.length}本${triples.length>30?" 最初の30本を表示":""}）</span><br>
+    ${showTriples.map(t=>`<span class="step">(${t.h}, ${t.a}, ${t.k}) → <span style="color:var(--text)">${t.r}</span></span>`).join("<br>")}<br>
+    <br>
+    <span class="hl">両側コセット分解　HAK = ⊔ Hα⁽ⁱ⁾K（${cosets.length}個）</span><br>
+    ${cosets.map((c,i)=>`<span class="step">コセット${i+1}: α=${c.rep}　{${c.elems.join(", ")}}<br>　w=${c.w}　m=${Number.isInteger(c.mVal)?c.mVal:c.mVal.toFixed(2)}　|H∩Kᵅ|=${c.HintKa.length}　寄与=${c.contrib}</span>`).join("<br>")}<br>
+    <br>
+    <span class="hl">ベズー型定理の検証</span><br>
+    <span class="step">|H|×|A|×|K| = ${H.length}×${A.length}×${K.length} = <span class="hl">${LHS}</span></span><br>
+    <span class="step">Σ m⁽ⁱ⁾|H∩Kᵅ| = ${cosets.map(c=>c.contrib).join("+")} = <span class="hl">${RHS}</span></span><br>
+    <span class="${ok?"val":"fail"}" style="font-size:13px;font-weight:500">${ok?"✓ 成立":"✗ 不成立"}</span>
+  </div>`;
+}
+
+function switchTab(t){
+  const tabs=["theorems","subgroups","calc"];
+  document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",tabs[i]===t));
+  tabs.forEach(id=>document.getElementById(`pane-${id}`).classList.toggle("active",id===t));
+}
+
+renderFactors();
+</script>
+</body>
+</html>
