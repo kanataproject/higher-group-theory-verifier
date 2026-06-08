@@ -235,6 +235,7 @@ function bezout(g,H,K,A){
     coset.forEach(e=>assigned.add(e));
     let rep=null;
     for(let a of A){const t=new Set();for(let h of H)for(let k of K)t.add(g.mul(g.mul(h,a),k));if([...coset].every(e=>t.has(e))&&t.size===coset.size){rep=a;break;}}
+    if(!rep)rep=x; // フォールバック: repが見つからない場合はxを使用
     let w=0;
     for(let a of A){const t=new Set();for(let h of H)for(let k of K)t.add(g.mul(g.mul(h,a),k));if([...coset].every(e=>t.has(e))&&t.size===coset.size)w++;}
     let aInv=g.elems[0];
