@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高次群論　Ta9検証ツール</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;--border:#2e3350;--text:#e8eaf0;--text2:#8b91b0;--text3:#555c7a;--green:#4ade80;--green-bg:rgba(74,222,128,0.1);--green-border:rgba(74,222,128,0.3);--blue:#60a5fa;--blue-bg:rgba(96,165,250,0.1);--blue-border:rgba(96,165,250,0.3);--orange:#fb923c;--orange-bg:rgba(251,146,60,0.1);--orange-border:rgba(251,146,60,0.3);--red:#f87171;--red-bg:rgba(248,113,113,0.1);--red-border:rgba(248,113,113,0.3);--yellow:#fbbf24;--yellow-bg:rgba(251,191,36,0.1);--yellow-border:rgba(251,191,36,0.3);--mono:'IBM Plex Mono',monospace;--sans:'Noto Sans JP',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:2rem 1.25rem}
+header{margin-bottom:2rem}
+h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.sub{font-size:13px;color:var(--text2)}
+.tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:1.5rem;width:fit-content}
+.tab{padding:8px 20px;font-size:13px;cursor:pointer;background:transparent;border:none;color:var(--text2);font-family:var(--sans);transition:all .15s}
+.tab.active{background:var(--bg3);color:var(--text);font-weight:500}
+.pane{display:none}.pane.active{display:block}
+.sec{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.group-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem}
+.gbtn{padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.gbtn:hover{border-color:var(--blue-border);color:var(--blue)}
+.gbtn.active{background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue)}
+.theorem-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:12px}
+.theorem-title{font-size:14px;font-weight:500;margin-bottom:6px;color:var(--text)}
+.theorem-desc{font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6}
+.theorem-formula{font-family:var(--mono);font-size:12px;color:var(--blue);background:var(--bg3);padding:8px 12px;border-radius:6px;margin-bottom:0}
+.run-btn{width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text);font-size:14px;cursor:pointer;font-family:var(--sans);margin:1.5rem 0;transition:all .15s}
+.run-btn:hover{border-color:var(--blue-border);color:var(--blue)}
+.run-btn:disabled{opacity:.4;cursor:not-allowed}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.stat-num{font-size:22px;font-weight:700;font-family:var(--mono);color:var(--text)}
+.stat-num.ok{color:var(--green)}
+.stat-num.fail{color:var(--red)}
+.stat-label{font-size:11px;color:var(--text3);margin-top:4px}
+.progress-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:4px;height:6px;margin-bottom:1rem;overflow:hidden}
+.progress-bar{height:100%;background:var(--blue);border-radius:4px;transition:width .05s;width:0%}
+.log-area{font-size:11px;font-family:var(--mono);max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:8px;background:var(--bg2)}
+.log-row{padding:4px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start}
+.log-row:last-child{border-bottom:none}
+.log-ok{color:var(--green);flex-shrink:0;margin-top:1px}
+.log-fail{color:var(--red);flex-shrink:0;margin-top:1px;font-weight:700}
+.log-desc{color:var(--text2);flex:1;line-height:1.5}
+.log-val{color:var(--text3);flex-shrink:0;font-size:10px}
+.dl-btn{margin-top:10px;width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--sans);display:none;transition:all .15s}
+.dl-btn:hover{border-color:var(--green-border);color:var(--green)}
+.dl-btn.show{display:block}
+.divider{height:1px;background:var(--border);margin:1.5rem 0}
+footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:11px;color:var(--text3);line-height:1.8}
+footer a{color:var(--text2);text-decoration:none}
+footer a:hover{color:var(--blue)}
+.result-hidden{display:none}
+.result-show{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>高次群論　Ta9 検証ツール</h1>
+    <p class="sub">高村茂（京都大学）「The orders of subgroup products and coset products」(2025) の定理を計算機検証します</p>
+  </header>
+
+  <div class="sec">検証する群を選ぶ</div>
+  <div class="group-row" id="group-row"></div>
+
+  <div class="theorem-card">
+    <div class="theorem-title">Theorem 2.6　— セクトの位数の整除性</div>
+    <div class="theorem-desc">どんなセクト H₁H₂⋯Hₙ を作っても、その位数は必ず両端の部分群の最小公倍数の倍数になる。意識しなくてもそうなってしまう不可避の制約。</div>
+    <div class="theorem-formula">|H₁H₂⋯Hₙ| は lcm(|H₁|, |Hₙ|) の倍数</div>
+  </div>
+
+  <div class="theorem-card">
+    <div class="theorem-title">Theorem 3.9　— irredundantセクトの位数の下界</div>
+    <div class="theorem-desc">冗長でない（どの部分群を取り除いてもセクトが小さくなる）セクトは、長さ×両端の最大位数以上の大きさになる。</div>
+    <div class="theorem-formula">|H₁H₂⋯Hₙ| ≥ n × max(|H₁|, |Hₙ|)</div>
+  </div>
+
+  <div class="theorem-card">
+    <div class="theorem-title">Theorem 4.32　— GとセクトのGap</div>
+    <div class="theorem-desc">有限群Gの真のセクト（GとぴったりでないセクトのことGより小さいセクト）はGとの差が両端の最大位数以上開く。Gにほぼ等しいセクトは作れない。</div>
+    <div class="theorem-formula">|G| - |K₁K₂⋯Kₘ| ≥ max(|K₁|, |Kₘ|)</div>
+  </div>
+
+  <button class="run-btn" id="run-btn" onclick="runVerify()">全定理を全セクトで一括検証 →</button>
+
+  <div id="result" class="result-hidden">
+    <div class="sec">検証結果</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num" id="s-total">0</div><div class="stat-label">総セクト数</div></div>
+      <div class="stat-card"><div class="stat-num ok" id="s-t26">0</div><div class="stat-label">Thm 2.6 成立</div></div>
+      <div class="stat-card"><div class="stat-num ok" id="s-t39">0</div><div class="stat-label">Thm 3.9 成立</div></div>
+      <div class="stat-card"><div class="stat-num ok" id="s-t432">0</div><div class="stat-label">Thm 4.32 成立</div></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num fail" id="f-t26">0</div><div class="stat-label">Thm 2.6 不成立</div></div>
+      <div class="stat-card"><div class="stat-num fail" id="f-t39">0</div><div class="stat-label">Thm 3.9 不成立</div></div>
+      <div class="stat-card"><div class="stat-num fail" id="f-t432">0</div><div class="stat-label">Thm 4.32 不成立</div></div>
+      <div class="stat-card"><div class="stat-num ok" id="s-irr">0</div><div class="stat-label">irredundantセクト数</div></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="prog-bar"></div></div>
+    <div class="log-area" id="log-area"></div>
+    <button class="dl-btn" id="dl-btn" onclick="downloadCSV()">結果を CSV でダウンロード ↓</button>
+  </div>
+
+  <div class="divider"></div>
+  <footer>
+    <strong>参照論文</strong><br>
+    Takamura, S. "The orders of subgroup products and coset products", <em>Transactions on Combinatorics</em>, 14(4), 223–250, 2025.<br>
+    DOI: 10.22108/toc.2024.141562.2176<br>
+    <br>
+    <strong>関連</strong><br>
+    <a href="https://kanataproject.github.io/higher-group-theory-verifier/" target="_blank">Ta10 ベズー型定理 検証ツール</a><br>
+    <br>
+    <strong>ライセンス</strong><br>
+    <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a>
+  </footer>
+</div>
+
+<script>
+const GROUPS={
+  S3:{name:"S₃（6元）",elems:["e","r","r²","f","fr","fr²"],
+    mul:(a,b)=>({"e":{"e":"e","r":"r","r²":"r²","f":"f","fr":"fr","fr²":"fr²"},"r":{"e":"r","r":"r²","r²":"e","f":"fr²","fr":"f","fr²":"fr"},"r²":{"e":"r²","r":"e","r²":"r","f":"fr","fr":"fr²","fr²":"f"},"f":{"e":"f","r":"fr","r²":"fr²","f":"e","fr":"r","fr²":"r²"},"fr":{"e":"fr","r":"fr²","r²":"f","f":"r²","fr":"e","fr²":"r"},"fr²":{"e":"fr²","r":"f","r²":"fr","f":"r","fr":"r²","fr²":"e"}}[a][b])},
+  D4:{name:"D₄（8元）",elems:["e","r","r²","r³","s","sr","sr²","sr³"],
+    mul:(a,b)=>{const idx=["e","r","r²","r³","s","sr","sr²","sr³"],T=[[0,1,2,3,4,5,6,7],[1,2,3,0,7,4,5,6],[2,3,0,1,6,7,4,5],[3,0,1,2,5,6,7,4],[4,5,6,7,0,1,2,3],[5,6,7,4,3,0,1,2],[6,7,4,5,2,3,0,1],[7,4,5,6,1,2,3,0]];return idx[T[idx.indexOf(a)][idx.indexOf(b)]]}},
+  Q8:{name:"Q₈（8元）",elems:["1","-1","i","-i","j","-j","k","-k"],
+    mul:(a,b)=>{const idx=["1","-1","i","-i","j","-j","k","-k"],T=[[0,1,2,3,4,5,6,7],[1,0,3,2,5,4,7,6],[2,3,1,0,6,7,5,4],[3,2,0,1,7,6,4,5],[4,5,7,6,1,0,2,3],[5,4,6,7,0,1,3,2],[6,7,4,5,3,2,1,0],[7,6,5,4,2,3,0,1]];return idx[T[idx.indexOf(a)][idx.indexOf(b)]]}},
+  Z6:{name:"Z₆（6元、可換）",elems:["0","1","2","3","4","5"],
+    mul:(a,b)=>String((+a+ +b)%6)}
+};
+
+let G=GROUPS.S3,csvData=[],running=false;
+
+function gcd(a,b){return b===0?a:gcd(b,a%b)}
+function lcm(a,b){return a*b/gcd(a,b)}
+
+function allSubgroups(g){
+  const n=g.elems.length,result=[];
+  for(let mask=1;mask<(1<<n);mask++){
+    const S=g.elems.filter((_,i)=>mask>>i&1);
+    if(!S.includes(g.elems[0]))continue;
+    let ok=true;
+    outer:for(let a of S)for(let b of S)if(!S.includes(g.mul(a,b))){ok=false;break outer;}
+    if(ok)result.push(S);
+  }
+  return result.sort((a,b)=>a.length-b.length);
+}
+
+function computeSect(g,subgroups){
+  const set=new Set();
+  function build(idx,cur){
+    if(idx===subgroups.length){set.add(cur.slice().sort().join(","));return;}
+    for(let h of subgroups[idx])build(idx+1,[...cur,h].map((_,i,a)=>i===0?a[i]:g.mul(a[i-1],a[i])).slice(-1)[0]);
+  }
+  const result=new Set();
+  function compute(elems,idx){
+    if(idx===subgroups.length)return elems;
+    const next=new Set();
+    for(let x of elems)for(let h of subgroups[idx])next.add(g.mul(x,h));
+    return compute(next,idx+1);
+  }
+  return compute(new Set([g.elems[0]]),0);
+}
+
+function sectElems(g,sgs){
+  let cur=new Set(sgs[0]);
+  for(let i=1;i<sgs.length;i++){
+    const next=new Set();
+    for(let x of cur)for(let h of sgs[i])next.add(g.mul(x,h));
+    cur=next;
+  }
+  return cur;
+}
+
+function isIrredundant(g,sgs){
+  const full=sectElems(g,sgs);
+  const fullSize=full.size;
+  for(let i=0;i<sgs.length;i++){
+    const reduced=sgs.filter((_,j)=>j!==i);
+    if(reduced.length===0)return sgs.length===1?false:false;
+    const r=sectElems(g,reduced);
+    if(r.size>=fullSize)return false;
+  }
+  return true;
+}
+
+function renderGroups(){
+  const r=document.getElementById("group-row");r.innerHTML="";
+  Object.entries(GROUPS).forEach(([k,v])=>{
+    const b=document.createElement("button");
+    b.className="gbtn"+(G===v?" active":"");
+    b.textContent=v.name;
+    b.onclick=()=>{G=v;document.getElementById("result").className="result-hidden";r.querySelectorAll(".gbtn").forEach(x=>x.classList.remove("active"));b.classList.add("active");G=v;};
+    r.appendChild(b);
+  });
+}
+
+async function runVerify(){
+  if(running)return;
+  running=true;
+  const btn=document.getElementById("run-btn");
+  btn.textContent="検証中...";btn.disabled=true;
+  document.getElementById("result").className="result-show";
+  document.getElementById("dl-btn").className="dl-btn";
+  const log=document.getElementById("log-area"),bar=document.getElementById("prog-bar");
+  log.innerHTML="";
+  csvData=[["群","セクト","位数","|H₁|","|Hₙ|","lcm","Thm2.6","irredundant","n×max","Thm3.9","Gとの差","Thm4.32"]];
+
+  const sgs=allSubgroups(G);
+  const GSize=G.elems.length;
+
+  let totalSects=0,ok26=0,ok39=0,ok432=0,fail26=0,fail39=0,fail432=0,irrCount=0;
+  const tasks=[];
+
+  for(let n=1;n<=Math.min(4,sgs.length);n++){
+    function combo(arr,k,start,cur){
+      if(cur.length===k){tasks.push([...cur]);return;}
+      for(let i=start;i<arr.length;i++){combo(arr,k,i,[ ...cur,arr[i]]);}
+    }
+    combo(sgs,n,0,[]);
+  }
+
+  const T=tasks.length;
+
+  for(let ti=0;ti<T;ti++){
+    const sgsCombo=tasks[ti];
+    const sect=sectElems(G,sgsCombo);
+    const sectSize=sect.size;
+    const H1=sgsCombo[0],Hn=sgsCombo[sgsCombo.length-1];
+    const h1=H1.length,hn=Hn.length;
+    const lcmVal=lcm(h1,hn);
+    const n=sgsCombo.length;
+    const maxVal=Math.max(h1,hn);
+
+    const t26=sectSize%lcmVal===0;
+    const irr=isIrredundant(G,sgsCombo);
+    const t39=!irr||sectSize>=n*maxVal;
+    const isProper=sectSize<GSize;
+    const t432=!isProper||(GSize-sectSize)>=maxVal;
+
+    totalSects++;
+    if(t26)ok26++;else fail26++;
+    if(t39)ok39++;else fail39++;
+    if(t432)ok432++;else fail432++;
+    if(irr)irrCount++;
+
+    csvData.push([
+      G.name,
+      sgsCombo.map(s=>`{${s.join(",")}}`).join("×"),
+      sectSize,h1,hn,lcmVal,
+      t26?"成立":"不成立",
+      irr?"yes":"no",
+      n*maxVal,
+      t39?"成立":"不成立",
+      isProper?GSize-sectSize:"(G自体)",
+      t432?"成立":"不成立"
+    ]);
+
+    document.getElementById("s-total").textContent=totalSects;
+    document.getElementById("s-t26").textContent=ok26;
+    document.getElementById("s-t39").textContent=ok39;
+    document.getElementById("s-t432").textContent=ok432;
+    document.getElementById("f-t26").textContent=fail26;
+    document.getElementById("f-t39").textContent=fail39;
+    document.getElementById("f-t432").textContent=fail432;
+    document.getElementById("s-irr").textContent=irrCount;
+    bar.style.width=Math.round((ti+1)/T*100)+"%";
+
+    const allOk=t26&&t39&&t432;
+    if(!allOk||ti%30===0){
+      const row=document.createElement("div");
+      row.className="log-row";
+      const violations=[];
+      if(!t26)violations.push("Thm2.6違反");
+      if(!t39)violations.push("Thm3.9違反");
+      if(!t432)violations.push("Thm4.32違反");
+      const label=allOk?"✓":"✗ "+violations.join(" ");
+      row.innerHTML=`<span class="${allOk?"log-ok":"log-fail"}">${allOk?"✓":"✗"}</span><span class="log-desc">${sgsCombo.map(s=>`{${s.join(",")}}`).join("×")} → |sect|=${sectSize}${irr?" [irr]":""} ${!allOk?"<span style='color:var(--red)'>"+violations.join(" ")+"</span>":""}</span>`;
+      log.appendChild(row);log.scrollTop=log.scrollHeight;
+    }
+
+    if(ti%100===0)await new Promise(r=>setTimeout(r,0));
+  }
+
+  const done=document.createElement("div");
+  done.className="log-row";
+  done.innerHTML=`<span class="log-ok">完了</span><span class="log-desc">全 ${totalSects} セクト検証済み　不成立: Thm2.6=${fail26} Thm3.9=${fail39} Thm4.32=${fail432}</span>`;
+  log.appendChild(done);log.scrollTop=log.scrollHeight;
+
+  document.getElementById("dl-btn").className="dl-btn show";
+  btn.textContent="全定理を全セクトで一括検証 →";btn.disabled=false;running=false;
+}
+
+function downloadCSV(){
+  const bom="\uFEFF";
+  const csv=bom+csvData.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download=`ta9_verification_${G.name.replace(/[^A-Za-z0-9]/g,"_")}.csv`;
+  a.click();
+}
+
+renderGroups();
+</script>
+</body>
+</html>
