@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高次群論　相乗チャウ環 SCh(G) 比較ツール</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;--border:#2e3350;--text:#e8eaf0;--text2:#8b91b0;--text3:#555c7a;--green:#4ade80;--green-bg:rgba(74,222,128,0.1);--green-border:rgba(74,222,128,0.3);--blue:#60a5fa;--blue-bg:rgba(96,165,250,0.1);--blue-border:rgba(96,165,250,0.3);--red:#f87171;--red-bg:rgba(248,113,113,0.1);--red-border:rgba(248,113,113,0.3);--yellow:#fbbf24;--yellow-bg:rgba(251,191,36,0.1);--yellow-border:rgba(251,191,36,0.3);--mono:'IBM Plex Mono',monospace;--sans:'Noto Sans JP',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 0}
+.nav-inner{max-width:720px;margin:0 auto;padding:0 1.25rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nav-label{font-size:12px;color:var(--text3);margin-right:8px}
+.nav-link{padding:5px 14px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--sans);text-decoration:none;color:var(--text2);transition:all .15s}
+.nav-link.active{background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue)}
+.wrap{max-width:720px;margin:0 auto;padding:2rem 1.25rem}
+h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.sub{font-size:13px;color:var(--text2);margin-bottom:1.5rem;line-height:1.6}
+.tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:1.5rem;width:fit-content}
+.tab{padding:8px 20px;font-size:13px;cursor:pointer;background:transparent;border:none;color:var(--text2);font-family:var(--sans);transition:all .15s}
+.tab.active{background:var(--bg3);color:var(--text);font-weight:500}
+.pane{display:none}.pane.active{display:block}
+.sec{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.info-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:13px;color:var(--text2);line-height:1.7}
+.info-box code{font-family:var(--mono);color:var(--blue);font-size:12px}
+.group-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
+.group-panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem}
+.group-panel-title{font-size:13px;font-weight:500;margin-bottom:10px}
+.gbtn-list{display:flex;flex-direction:column;gap:6px}
+.gbtn{padding:7px 12px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--sans);text-align:left;transition:all .15s}
+.gbtn:hover{border-color:var(--blue-border);color:var(--blue)}
+.gbtn.active{background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue)}
+.run-btn{width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text);font-size:14px;cursor:pointer;font-family:var(--sans);margin-bottom:1.5rem;transition:all .15s}
+.run-btn:hover{border-color:var(--blue-border);color:var(--blue)}
+.run-btn:disabled{opacity:.4;cursor:not-allowed}
+.result{display:none}.result.show{display:block}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
+.compare-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem}
+.compare-title{font-size:13px;font-weight:500;margin-bottom:8px}
+.sg-row{font-size:11px;font-family:var(--mono);padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;color:var(--text2)}
+.sg-row:last-child{border-bottom:none}
+.verdict{border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:14px;font-weight:500;text-align:center}
+.verdict.diff{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green)}
+.verdict.same-noniso{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red)}
+.verdict.same-iso{background:var(--blue-bg);border:1px solid var(--blue-border);color:var(--blue)}
+.mult-table{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--mono);margin-top:8px}
+.mult-table td,.mult-table th{border:1px solid var(--border);padding:3px 6px;text-align:center}
+.mult-table th{background:var(--bg3);color:var(--text2)}
+.sch-section{margin-bottom:1rem}
+.sch-title{font-size:12px;font-weight:500;color:var(--text3);margin-bottom:6px}
+.fingerprint{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-family:var(--mono);font-size:10px;color:var(--yellow);word-break:break-all;margin-top:8px;max-height:80px;overflow-y:auto}
+/* 全ペア検証 */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.stat-num{font-size:24px;font-weight:700;font-family:var(--mono)}
+.stat-num.ok{color:var(--green)}
+.stat-num.warn{color:var(--red)}
+.stat-num.blue{color:var(--blue)}
+.stat-label{font-size:11px;color:var(--text3);margin-top:4px}
+.pair-table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono);margin-bottom:1rem}
+.pair-table th{background:var(--bg3);color:var(--text2);padding:6px 10px;text-align:left;border:1px solid var(--border);font-size:11px}
+.pair-table td{padding:6px 10px;border:1px solid var(--border);color:var(--text2)}
+.pair-table tr.noniso-same td{background:var(--red-bg);color:var(--red)}
+.pair-table tr.iso td{background:var(--blue-bg);color:var(--blue);opacity:.5}
+.pair-table tr.diff td{color:var(--green)}
+.dl-btn{width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--sans);display:none;margin-top:10px;transition:all .15s}
+.dl-btn:hover{border-color:var(--green-border);color:var(--green)}
+.dl-btn.show{display:block}
+.divider{height:1px;background:var(--border);margin:1.5rem 0}
+footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:11px;color:var(--text3);line-height:1.8}
+footer a{color:var(--text2);text-decoration:none}
+footer a:hover{color:var(--blue)}
+</style>
+</head>
+<body>
+<nav style="background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 0"><div style="max-width:720px;margin:0 auto;padding:0 1.25rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:12px;color:var(--text3);margin-right:8px">高次群論 検証ツール</span><a href="index.html" style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--sans);text-decoration:none;color:var(--text2)" id="nav-ta10">Ta10 ベズー型定理</a><a href="ta9.html" style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--sans);text-decoration:none;color:var(--text2)" id="nav-ta9">Ta9 セクト・位数の法則</a><a href="sch.html" style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--sans);text-decoration:none;color:var(--text2)" id="nav-sch">SCh(G) 完全不変量の探索</a></div></nav>
+
+<div class="wrap">
+  <h1>相乗チャウ環 SCh(G) 比較ツール</h1>
+  <p class="sub">SCh(G₁) = SCh(G₂) かつ G₁ ≇ G₂ となるペアが存在すれば、SCh(G) が完全不変量でないことの反証になります。</p>
+
+  <div class="info-box">
+    SCh(G) の構成：群Gの有限部分群 H ごとにシンボル X_H を割り当て、積のルール <code>X_H · X_K = |HK| · X_{H∩K}</code> で生成されるZ-代数に相乗位数公式を関係式として入れた環。ここでは SCh(G) の指紋として「部分群の位数の分布」と「積関係テーブル（|HK|, |H∩K|）の多重集合」を比較します。<br><br>
+    <strong style="color:var(--yellow)">⚠ 精度について：</strong>　このツールの指紋は <strong>簡易的なフィルター</strong> です。厳密な SCh(G) の構造には「どの部分群とどの部分群が具体的にどう交わるか」という代数的な積構造も含まれますが、ここでは位数の多重集合のみを比較しています。<br>
+    「指紋が違う → 確実に非同型（100%信頼）」ですが、「指紋が同じ → 同型とは限らない（さらに詳細な検証が必要）」という点に注意してください。
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('manual')">手動比較</button>
+    <button class="tab" onclick="switchTab('auto')">全ペア自動比較</button>
+  </div>
+
+  <!-- 手動比較 -->
+  <div class="pane active" id="pane-manual">
+    <div class="sec">比較する群を選ぶ</div>
+    <div class="group-grid">
+      <div class="group-panel">
+        <div class="group-panel-title">群 G₁</div>
+        <div class="gbtn-list" id="g1-list"></div>
+      </div>
+      <div class="group-panel">
+        <div class="group-panel-title">群 G₂</div>
+        <div class="gbtn-list" id="g2-list"></div>
+      </div>
+    </div>
+    <button class="run-btn" onclick="computeManual()">SCh(G) を計算して比較 →</button>
+    <div class="result" id="manual-result">
+      <div class="verdict" id="verdict"></div>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="compare-title" id="g1-title">G₁</div>
+          <div class="sch-section">
+            <div class="sch-title">部分群の位数の分布</div>
+            <div id="g1-orders"></div>
+          </div>
+          <div class="sch-section" style="margin-top:12px">
+            <div class="sch-title">積関係テーブル（上位20件）</div>
+            <div id="g1-table"></div>
+          </div>
+          <div class="sch-section" style="margin-top:12px">
+            <div class="sch-title">SCh(G) 指紋（ハッシュ）</div>
+            <div class="fingerprint" id="g1-fp"></div>
+          </div>
+        </div>
+        <div class="compare-card">
+          <div class="compare-title" id="g2-title">G₂</div>
+          <div class="sch-section">
+            <div class="sch-title">部分群の位数の分布</div>
+            <div id="g2-orders"></div>
+          </div>
+          <div class="sch-section" style="margin-top:12px">
+            <div class="sch-title">積関係テーブル（上位20件）</div>
+            <div id="g2-table"></div>
+          </div>
+          <div class="sch-section" style="margin-top:12px">
+            <div class="sch-title">SCh(G) 指紋（ハッシュ）</div>
+            <div class="fingerprint" id="g2-fp"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 全ペア自動比較 -->
+  <div class="pane" id="pane-auto">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;line-height:1.7">登録されている全群の全ペアを比較します。SCh(G₁) = SCh(G₂) かつ G₁ ≇ G₂ のペアが反証候補です。</p>
+    <button class="run-btn" id="auto-btn" onclick="computeAll()">全ペア自動比較を開始 →</button>
+    <div id="auto-result" style="display:none">
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num blue" id="s-total">0</div><div class="stat-label">総ペア数</div></div>
+        <div class="stat-card"><div class="stat-num ok" id="s-dist">0</div><div class="stat-label">SCh で区別できた</div></div>
+        <div class="stat-card"><div class="stat-num warn" id="s-same">0</div><div class="stat-label">反証候補（要注意）</div></div>
+      </div>
+      <table class="pair-table" id="pair-table">
+        <tr><th>G₁</th><th>G₂</th><th>同型?</th><th>SCh一致?</th><th>判定</th></tr>
+      </table>
+      <button class="dl-btn" id="dl-btn" onclick="downloadCSV()">結果を CSV でダウンロード ↓</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <footer>
+    <strong>参照論文</strong><br>
+    Takamura, S. "Intersection theory for groups and their Chow rings" (2025), Preprint [Ta13]<br>
+    <br>
+    <strong>注意</strong><br>
+    SCh(G) が完全不変量かどうかは未解決問題です。このツールは計算機による探索であり、証明ではありません。<br>
+    <br>
+    <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a>
+  </footer>
+</div>
+
+<script>
+const GROUPS={
+  S3:{name:"S₃（6元）",elems:["e","r","r²","f","fr","fr²"],iso:"S3",
+    mul:(a,b)=>({"e":{"e":"e","r":"r","r²":"r²","f":"f","fr":"fr","fr²":"fr²"},"r":{"e":"r","r":"r²","r²":"e","f":"fr²","fr":"f","fr²":"fr"},"r²":{"e":"r²","r":"e","r²":"r","f":"fr","fr":"fr²","fr²":"f"},"f":{"e":"f","r":"fr","r²":"fr²","f":"e","fr":"r","fr²":"r²"},"fr":{"e":"fr","r":"fr²","r²":"f","f":"r²","fr":"e","fr²":"r"},"fr²":{"e":"fr²","r":"f","r²":"fr","f":"r","fr":"r²","fr²":"e"}}[a][b])},
+  D4:{name:"D₄（8元）",elems:["e","r","r²","r³","s","sr","sr²","sr³"],iso:"D4",
+    mul:(a,b)=>{const idx=["e","r","r²","r³","s","sr","sr²","sr³"],T=[[0,1,2,3,4,5,6,7],[1,2,3,0,7,4,5,6],[2,3,0,1,6,7,4,5],[3,0,1,2,5,6,7,4],[4,5,6,7,0,1,2,3],[5,6,7,4,3,0,1,2],[6,7,4,5,2,3,0,1],[7,4,5,6,1,2,3,0]];return idx[T[idx.indexOf(a)][idx.indexOf(b)]]}},
+  Q8:{name:"Q₈（8元）",elems:["1","-1","i","-i","j","-j","k","-k"],iso:"Q8",
+    mul:(a,b)=>{const idx=["1","-1","i","-i","j","-j","k","-k"],T=[[0,1,2,3,4,5,6,7],[1,0,3,2,5,4,7,6],[2,3,1,0,6,7,5,4],[3,2,0,1,7,6,4,5],[4,5,7,6,1,0,2,3],[5,4,6,7,0,1,3,2],[6,7,4,5,3,2,1,0],[7,6,5,4,2,3,0,1]];return idx[T[idx.indexOf(a)][idx.indexOf(b)]]}},
+  Z6:{name:"Z₆（6元）",elems:["0","1","2","3","4","5"],iso:"Z6",mul:(a,b)=>String((+a+ +b)%6)},
+  Z8:{name:"Z₈（8元）",elems:["0","1","2","3","4","5","6","7"],iso:"Z8",mul:(a,b)=>String((+a+ +b)%8)},
+  Z4Z2:{name:"Z₄×Z₂（8元）",elems:["00","01","10","11","20","21","30","31"],iso:"Z4Z2",
+    mul:(a,b)=>`${(+a[0]+ +b[0])%4}${(+a[1]+ +b[1])%2}`},
+  Z4:{name:"Z₄（4元）",elems:["0","1","2","3"],iso:"Z4",mul:(a,b)=>String((+a+ +b)%4)},
+  V4:{name:"V₄=Z₂×Z₂（4元）",elems:["00","01","10","11"],iso:"V4",
+    mul:(a,b)=>`${(+a[0]+ +b[0])%2}${(+a[1]+ +b[1])%2}`}
+};
+
+let G1=GROUPS.D4,G2=GROUPS.Q8,csvData=[];
+
+function allSubgroups(g){
+  const n=g.elems.length,result=[];
+  for(let mask=1;mask<(1<<n);mask++){
+    const S=g.elems.filter((_,i)=>mask>>i&1);
+    if(!S.includes(g.elems[0]))continue;
+    let ok=true;
+    outer:for(let a of S)for(let b of S)if(!S.includes(g.mul(a,b))){ok=false;break outer;}
+    if(ok)result.push(S);
+  }
+  return result.sort((a,b)=>a.length-b.length);
+}
+
+function sectSize(g,H,K){const s=new Set();for(let h of H)for(let k of K)s.add(g.mul(h,k));return s.size;}
+function intersect(H,K){return H.filter(x=>K.includes(x));}
+
+function computeSCh(g){
+  const sgs=allSubgroups(g);
+  const orders=sgs.map(s=>s.length).sort((a,b)=>a-b);
+  const relations=[];
+  for(let i=0;i<sgs.length;i++)for(let j=0;j<sgs.length;j++){
+    const H=sgs[i],K=sgs[j];
+    relations.push([H.length,K.length,sectSize(g,H,K),intersect(H,K).length]);
+  }
+  relations.sort((a,b)=>a[0]-b[0]||a[1]-b[1]||a[2]-b[2]||a[3]-b[3]);
+  return{sgs,orders,relations,fp:JSON.stringify({orders,relations})};
+}
+
+function switchTab(t){
+  document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",i===(t==="manual"?0:1)));
+  document.getElementById("pane-manual").classList.toggle("active",t==="manual");
+  document.getElementById("pane-auto").classList.toggle("active",t==="auto");
+}
+
+function renderGroups(){
+  ["g1","g2"].forEach((id,gi)=>{
+    const list=document.getElementById(`${id}-list`);list.innerHTML="";
+    const sel=gi===0?G1:G2;
+    Object.entries(GROUPS).forEach(([k,v])=>{
+      const b=document.createElement("button");
+      b.className="gbtn"+(sel===v?" active":"");
+      b.textContent=v.name;
+      b.onclick=()=>{
+        if(gi===0)G1=v;else G2=v;
+        document.getElementById("manual-result").className="result";
+        list.querySelectorAll(".gbtn").forEach(x=>x.classList.remove("active"));
+        b.classList.add("active");
+      };
+      list.appendChild(b);
+    });
+  });
+}
+
+function renderOrders(orders,el){
+  const counts={};orders.forEach(o=>counts[o]=(counts[o]||0)+1);
+  el.innerHTML=Object.entries(counts).map(([o,c])=>`<div class="sg-row"><span>位数 ${o}</span><span>${c} 個</span></div>`).join("");
+}
+
+function renderTable(relations,el){
+  const shown=relations.slice(0,20),more=relations.length-shown.length;
+  el.innerHTML=`<table class="mult-table"><tr><th>|H|</th><th>|K|</th><th>|HK|</th><th>|H∩K|</th></tr>${shown.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("")}</table>${more>0?`<div style="font-size:11px;color:var(--text3);margin-top:4px">他 ${more} 件...</div>`:""}`;
+}
+
+function computeManual(){
+  const s1=computeSCh(G1),s2=computeSCh(G2);
+  const same=s1.fp===s2.fp,isNonIso=G1.iso!==G2.iso;
+  document.getElementById("g1-title").textContent=G1.name;
+  document.getElementById("g2-title").textContent=G2.name;
+  renderOrders(s1.orders,document.getElementById("g1-orders"));
+  renderOrders(s2.orders,document.getElementById("g2-orders"));
+  renderTable(s1.relations,document.getElementById("g1-table"));
+  renderTable(s2.relations,document.getElementById("g2-table"));
+  document.getElementById("g1-fp").textContent=s1.fp.slice(0,300);
+  document.getElementById("g2-fp").textContent=s2.fp.slice(0,300);
+  const v=document.getElementById("verdict");
+  if(same&&isNonIso){v.className="verdict same-noniso";v.textContent="⚠ SCh(G₁) = SCh(G₂) かつ G₁ ≇ G₂ — 反証候補";}
+  else if(!isNonIso){v.className="verdict same-iso";v.textContent="SCh(G₁) = SCh(G₂)（同じ群なので当然）";}
+  else{v.className="verdict diff";v.textContent="✓ SCh(G₁) ≠ SCh(G₂) — この2群は SCh(G) で区別できた";}
+  document.getElementById("manual-result").className="result show";
+}
+
+function computeAll(){
+  const btn=document.getElementById("auto-btn");
+  btn.disabled=true;btn.textContent="計算中...";
+  document.getElementById("auto-result").style.display="block";
+  document.getElementById("dl-btn").className="dl-btn";
+  const keys=Object.keys(GROUPS);
+  const schCache={};
+  keys.forEach(k=>{schCache[k]=computeSCh(GROUPS[k]);});
+  const tbody=document.getElementById("pair-table");
+  while(tbody.rows.length>1)tbody.deleteRow(1);
+  csvData=[["G₁","G₂","同型?","SCh一致?","判定"]];
+  let total=0,dist=0,same=0;
+  for(let i=0;i<keys.length;i++)for(let j=i+1;j<keys.length;j++){
+    const k1=keys[i],k2=keys[j];
+    const g1=GROUPS[k1],g2=GROUPS[k2];
+    const s1=schCache[k1],s2=schCache[k2];
+    const isIso=g1.iso===g2.iso;
+    const schSame=s1.fp===s2.fp;
+    total++;
+    let cls,label;
+    if(schSame&&!isIso){same++;cls="noniso-same";label="⚠ 反証候補";}
+    else if(isIso){cls="iso";label="同型（参考）";}
+    else{dist++;cls="diff";label="✓ 区別できた";}
+    const tr=tbody.insertRow();
+    tr.className=cls;
+    [g1.name,g2.name,isIso?"Yes（同型）":"No（非同型）",schSame?"一致":"不一致",label].forEach(t=>{const td=tr.insertCell();td.textContent=t;});
+    csvData.push([g1.name,g2.name,isIso?"同型":"非同型",schSame?"一致":"不一致",label]);
+  }
+  document.getElementById("s-total").textContent=total;
+  document.getElementById("s-dist").textContent=dist;
+  document.getElementById("s-same").textContent=same;
+  document.getElementById("dl-btn").className="dl-btn show";
+  btn.disabled=false;btn.textContent="全ペア自動比較を開始 →";
+}
+
+function downloadCSV(){
+  const bom="\uFEFF";
+  const csv=bom+csvData.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download="sch_comparison.csv";a.click();
+}
+
+renderGroups();
+</script>
+<script>document.getElementById("nav-sch").style.cssText+="background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue)";</script>
+</body>
+</html>
