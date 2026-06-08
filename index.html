@@ -251,7 +251,16 @@ function bezout(g,H,K,A){
   return{LHS,RHS,ok:LHS===RHS,cosets};
 }
 
+let abortFlag=false;
+
 function switchTab(t){
+  // 検証中にタブ切り替えしたら中断フラグを立てる
+  if(autoRunning){
+    abortFlag=true;
+    autoRunning=false;
+    const btn=document.getElementById("vrun-btn");
+    if(btn){btn.textContent="全数検証を開始 →";btn.disabled=false;}
+  }
   document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",i===(t==="manual"?0:1)));
   document.getElementById("pane-manual").classList.toggle("active",t==="manual");
   document.getElementById("pane-auto").classList.toggle("active",t==="auto");
@@ -365,6 +374,7 @@ function toggleSyn(){
 async function runAuto(){
   if(autoRunning)return;
   autoRunning=true;
+  abortFlag=false;
   const btn=document.getElementById("vrun-btn");
   btn.textContent="検証中...";btn.disabled=true;
   document.getElementById("auto-result").style.display="block";
@@ -398,7 +408,10 @@ async function runAuto(){
       row.innerHTML=`<span class="${ok?"log-ok":"log-fail"}">${ok?"✓":"✗"}</span><span class="log-desc">H={${H.join(",")}} K={${K.join(",")}} A={${A.join(",")}}</span><span class="log-eq">${LHS}=${RHS}</span>`;
       log.appendChild(row);log.scrollTop=log.scrollHeight;
     }
-    if(i%200===0)await new Promise(r=>setTimeout(r,0));
+    if(i%200===0){
+      await new Promise(r=>setTimeout(r,0));
+      if(abortFlag){log.innerHTML+='<div class="log-row"><span class="log-ok">中断</span><span class="log-desc">タブ切り替えにより検証を中断しました</span></div>';return;}
+    }
   }
   const row=document.createElement("div");
   row.className="log-row";
